@@ -1,0 +1,2009 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-950 text-amber-100">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>The Brazen Head - Mobile</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Three.js for 3D Rendering -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts for Occult Aesthetics -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=MedievalSharp&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'MedievalSharp', cursive, serif;
+            background-color: #050508;
+            background-image:
+                radial-gradient(circle at 50% 50%, rgba(30, 20, 10, 0.4) 0%, rgba(5, 5, 8, 0.95) 100%),
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Cpath d='M40 8 L46 34 L72 40 L46 46 L40 72 L34 46 L8 40 L34 34Z' fill='none' stroke='%23d4af37' stroke-opacity='.06'/%3E%3Ccircle cx='40' cy='40' r='9' fill='none' stroke='%23d4af37' stroke-opacity='.05'/%3E%3C/svg%3E");
+        }
+
+        .font-cinzel { font-family: 'Cinzel Decorative', serif; }
+        .font-gothic { font-family: 'UnifrakturMaguntia', cursive; }
+
+        /* Esoteric Border Effects */
+        .occult-card {
+            background: rgba(18, 14, 22, 0.85);
+            border: 2px solid #8b6b23;
+            box-shadow: 0 0 25px rgba(180, 120, 30, 0.15), inset 0 0 15px rgba(0, 0, 0, 0.8);
+            position: relative;
+        }
+
+        .occult-card::before {
+            content: "✦";
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #d4af37;
+            background: #050508;
+            padding: 0 8px;
+            font-size: 14px;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #0d0a12; }
+        ::-webkit-scrollbar-thumb { background: #5a4216; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #8b6b23; }
+
+        .brass-text-glow {
+            text-shadow: 0 0 10px rgba(212, 175, 55, 0.5), 0 0 20px rgba(160, 100, 20, 0.3);
+        }
+
+        @keyframes sigilRotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .anim-sigil { animation: sigilRotate 120s linear infinite; }
+
+        @keyframes fortuneIn {
+            0% { opacity: 0; filter: blur(4px); transform: translateY(6px); }
+            100% { opacity: 1; filter: blur(0); transform: translateY(0); }
+        }
+        .fortune-in { animation: fortuneIn 0.9s ease-out both; }
+
+
+        /* Brass consult lever */
+        .lever-track {
+            position: relative; height: 64px; border-radius: 32px; overflow: hidden;
+            background: linear-gradient(#0b0805, #251b0e 48%, #0b0805);
+            border: 2px solid #8b6b23;
+            box-shadow: inset 0 3px 9px #000, inset 0 -1px 2px rgba(212,175,55,.25), 0 0 14px rgba(180,120,30,.2);
+            touch-action: pan-y; user-select: none; -webkit-user-select: none; outline: none;
+            transition: filter .6s;
+        }
+        .lever-track:focus-visible { box-shadow: 0 0 0 3px rgba(212,175,55,.6), inset 0 3px 9px #000; }
+        .lever-track.lever-asleep { filter: saturate(.55) brightness(.8); }
+        .lever-groove {
+            position: absolute; left: 34px; right: 34px; top: 50%; height: 12px; margin-top: -6px; border-radius: 6px;
+            background: #040302; box-shadow: inset 0 2px 5px #000, 0 1px 0 rgba(212,175,55,.35);
+        }
+        .lever-rivet {
+            position: absolute; top: 50%; width: 9px; height: 9px; margin-top: -4.5px; border-radius: 50%;
+            background: radial-gradient(circle at 35% 30%, #e6c46a, #6b5028 70%); box-shadow: 0 1px 2px #000;
+        }
+        .lever-label {
+            position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none;
+        }
+        .lever-label span {
+            font-family: 'Cinzel Decorative', serif; font-weight: 700; font-size: 15px; letter-spacing: .4em; padding: 3px 12px 3px 16px;
+            color: #b8913a; text-shadow: 0 1px 0 #000, 0 -1px 0 rgba(255,225,140,.25);
+            background: linear-gradient(#2c200f, #1a1208); border: 1px solid #6b5028; border-radius: 4px;
+            box-shadow: inset 0 1px 2px #000;
+        }
+        .lever-knob {
+            position: absolute; left: 4px; top: 50%; width: 52px; height: 52px; margin-top: -26px; border-radius: 50%;
+            background: radial-gradient(circle at 35% 30%, #f0d78a 0%, #b08a3e 28%, #6b5028 62%, #35260f 100%);
+            border: 2px solid #d4af37;
+            box-shadow: 0 5px 9px rgba(0,0,0,.75), inset 0 -3px 6px rgba(0,0,0,.5), inset 0 2px 3px rgba(255,235,170,.55);
+            touch-action: none; cursor: grab; display: flex; align-items: center; justify-content: center; will-change: transform;
+        }
+        .lever-knob:active { cursor: grabbing; }
+        .lever-knob svg { width: 30px; height: 30px; pointer-events: none; }
+
+
+        /* Brass voice switch */
+        .brass-switch { position: relative; width: 44px; height: 24px; border-radius: 12px; border: 1px solid #6b5028;
+            background: linear-gradient(#0b0805, #1d150a); box-shadow: inset 0 2px 4px #000; transition: background .3s; cursor: pointer; }
+        .brass-switch .brass-knob { position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; border-radius: 50%;
+            background: radial-gradient(circle at 35% 30%, #8a7040, #3a2a14); transition: transform .25s, background .25s; box-shadow: 0 1px 3px #000; }
+        .brass-switch.brass-on { background: linear-gradient(#1a1208, #2c200f); border-color: #b08a3e; }
+        .brass-switch.brass-on .brass-knob { transform: translateX(20px); background: radial-gradient(circle at 35% 30%, #f0d78a, #b08a3e 60%, #6b5028); }
+        .brass-switch:focus-visible { outline: 2px solid rgba(212,175,55,.7); outline-offset: 2px; }
+
+        #toast {
+            transition: opacity 0.3s, transform 0.3s;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between p-2 md:p-6 text-amber-200/90 selection:bg-amber-900 selection:text-amber-100 overflow-x-hidden">
+
+    <!-- TOAST -->
+    <div id="toast" role="status" aria-live="polite" class="fixed top-4 left-1/2 -translate-x-1/2 -translate-y-2 z-50 max-w-[90vw] md:max-w-lg bg-slate-950/95 border border-amber-500/70 text-amber-200 text-sm font-serif px-4 py-2 rounded shadow-2xl opacity-0 pointer-events-none text-center"></div>
+
+    <!-- HEADER / BANNER -->
+    <header class="w-full max-w-md mx-auto text-center py-3 mb-3 border-b border-amber-900/50 relative">
+        <div class="absolute inset-0 flex items-center justify-center opacity-10 pointer-events-none">
+            <svg class="w-48 h-48 anim-sigil text-amber-500" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="45" stroke="currentColor" stroke-width="1" fill="none" />
+                <polygon points="50,5 90,85 10,85" stroke="currentColor" stroke-width="1" fill="none" />
+                <polygon points="50,95 90,15 10,15" stroke="currentColor" stroke-width="1" fill="none" />
+                <circle cx="50" cy="50" r="25" stroke="currentColor" stroke-width="0.5" fill="none" />
+            </svg>
+        </div>
+        <h1 class="font-cinzel text-2xl md:text-4xl text-amber-400 font-bold tracking-widest brass-text-glow uppercase">
+            Caput Aerium
+        </h1>
+    </header>
+
+    <!-- MAIN DUAL PANEL LAYOUT -->
+    <main class="w-full max-w-md mx-auto flex flex-col gap-4 flex-grow">
+
+        <!-- LEFT SIDE: 3D ANIMATED BRAZEN HEAD -->
+        <section class="flex flex-col justify-center items-center relative min-h-[340px] occult-card rounded-xl p-4 overflow-hidden group">
+
+            <div class="absolute inset-0 pointer-events-none z-10 border border-amber-700/30 rounded-xl m-1"></div>
+
+            <!-- Brass Plaque Status -->
+            <div class="absolute top-4 left-4 z-20 bg-slate-950/80 border border-amber-700/60 px-3 py-1 rounded text-xs tracking-widest uppercase font-cinzel text-amber-400">
+                <i class="fa-solid fa-gear text-amber-500 mr-1 animate-spin" style="animation-duration: 20s;"></i>
+                Vessel State: <span id="automatonStatus" class="text-amber-600">Slumbering</span>
+            </div>
+
+            <!-- Sound toggle -->
+            <button id="soundBtn" onclick="toggleSound()" title="Toggle clockwork sounds" aria-label="Toggle clockwork sounds" class="absolute top-4 right-4 z-20 w-8 h-8 rounded bg-slate-950/80 border border-amber-700/60 text-amber-400 hover:text-amber-200 hover:border-amber-500 transition flex items-center justify-center">
+                <i id="soundIcon" class="fa-solid fa-volume-high text-xs"></i>
+            </button>
+
+            <!-- Knock-to-wake ritual -->
+            <div id="knockUi" class="absolute bottom-12 inset-x-0 z-20 flex flex-col items-center gap-2 pointer-events-none transition-opacity duration-700">
+                <div class="flex gap-2">
+                    <span class="knock-pip w-3 h-3 rounded-full border border-amber-600 bg-transparent transition"></span>
+                    <span class="knock-pip w-3 h-3 rounded-full border border-amber-600 bg-transparent transition"></span>
+                    <span class="knock-pip w-3 h-3 rounded-full border border-amber-600 bg-transparent transition"></span>
+                </div>
+                <div class="text-[11px] md:text-xs font-cinzel text-amber-400/90 tracking-widest bg-slate-950/70 px-3 py-1 rounded text-center">Knock thrice upon the brass to wake the Head<br><span class="text-amber-700 normal-case tracking-normal font-serif">(click or tap the head three times)</span></div>
+            </div>
+
+            <!-- Speech Subtitles -->
+            <!-- Fortune: appears after the Head has spoken; tap to close and let it sleep -->
+            <div id="fortuneBox" role="button" tabindex="0" aria-label="Your fortune. Tap to close and let the Head sleep" class="hidden absolute inset-x-3 bottom-3 z-30 cursor-pointer bg-slate-950/95 border border-amber-500/80 rounded-lg p-4 text-center shadow-2xl">
+                <div id="fortuneText" class="text-amber-100 text-base leading-relaxed font-serif italic max-h-[42vh] overflow-y-auto"></div>
+                <div class="mt-2 text-[10px] font-cinzel tracking-widest text-amber-600 uppercase">Tap to close &middot; the Head will sleep</div>
+            </div>
+
+            <div id="speechSubtitles" class="absolute bottom-6 inset-x-6 z-20 bg-slate-950/90 border border-amber-500/80 rounded-lg p-3 text-center text-amber-200 text-sm md:text-base font-serif italic shadow-2xl opacity-0 transition-opacity duration-300 pointer-events-none max-h-28 overflow-y-auto">
+                "Time is..."
+            </div>
+
+            <!-- 3D Canvas Container -->
+            <div id="canvasContainer" class="w-full h-full min-h-[320px] cursor-grab active:cursor-grabbing rounded-lg overflow-hidden"></div>
+
+            <div class="absolute bottom-2 right-4 z-20 text-[10px] text-amber-700 font-sans tracking-wider pointer-events-none">
+                <i class="fa-solid fa-hand-pointer mr-1"></i> Drag to view &bull; Scroll to zoom
+            </div>
+        </section>
+
+        <!-- RIGHT SIDE: CONTROL INTERFACE & ORACLE -->
+        <section class="flex flex-col gap-3">
+
+            <!-- QUERY -->
+            <div class="px-1">
+                <label for="oracleQuestion" class="block text-xs font-cinzel text-amber-400 mb-1 text-center">State Thy Query</label>
+                <input type="text" id="oracleQuestion" enterkeyhint="go" class="w-full bg-slate-950/90 border border-amber-800/80 rounded px-3 py-2.5 text-amber-100 placeholder-amber-800 focus:outline-none focus:border-amber-500 text-base font-serif" placeholder="Shall my quest succeed?">
+            </div>
+
+            <!-- CONSULT + ACTIONS -->
+                <div id="oracleBtn" class="lever-track lever-asleep" role="button" tabindex="0" aria-label="Pull the lever to consult the Brazen Head">
+                    <div class="lever-groove"></div>
+                    <div class="lever-rivet" style="left:12px"></div>
+                    <div class="lever-rivet" style="right:12px"></div>
+                    <div class="lever-label"><span>PULL</span></div>
+                    <div id="leverKnob" class="lever-knob"><svg viewBox="-12 -12 24 24"><polygon points="0,-11 3.1,-7.5 7.8,-7.8 7.5,-3.1 11,0 7.5,3.1 7.8,7.8 3.1,7.5 0,11 -3.1,7.5 -7.8,7.8 -7.5,3.1 -11,0 -7.5,-3.1 -7.8,-7.8 -3.1,-7.5" fill="#3a2a12" stroke="#f0d78a" stroke-width="1"/><circle r="3.2" fill="#1f7a6a" stroke="#f0d78a" stroke-width=".8"/></svg></div>
+                </div>
+                <div class="grid grid-cols-3 gap-2">
+                    <button id="againBtn" onclick="hearAgain()" disabled class="py-2 bg-slate-950/80 hover:bg-amber-950/50 text-amber-300 font-cinzel text-[11px] font-bold tracking-wider rounded border border-amber-700/70 transition flex items-center justify-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed">
+                        <i class="fa-solid fa-rotate-right"></i> Hear Again
+                    </button>
+                    <button id="saveFortuneBtn" onclick="downloadAudio(lastFortune)" disabled class="py-2 bg-slate-950/80 hover:bg-amber-950/50 text-amber-300 font-cinzel text-[11px] font-bold tracking-wider rounded border border-amber-700/70 transition flex items-center justify-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed">
+                        <i class="fa-solid fa-download"></i> Save Audio
+                    </button>
+                    <button id="cardBtn" onclick="shareFortuneCard()" disabled class="py-2 bg-slate-950/80 hover:bg-amber-950/50 text-amber-300 font-cinzel text-[11px] font-bold tracking-wider rounded border border-amber-700/70 transition flex items-center justify-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed">
+                        <i class="fa-solid fa-image"></i> Share Card
+                    </button>
+                </div>
+
+            <!-- Hidden stubs kept for the script (sky line, output text, loading state) -->
+            <div class="hidden" aria-hidden="true"><div id="skyLine"></div><div id="oracleDisplay"></div><div id="oracleLoading"></div></div>
+
+            <!-- SHARED SETTINGS (used by both tabs) -->
+            <div class="border border-amber-900/60 rounded bg-slate-950/50 overflow-hidden text-xs">
+                <button onclick="toggleConfig()" class="w-full px-3 py-2 text-left flex justify-between items-center text-amber-400 font-cinzel hover:bg-amber-950/30">
+                    <span><i class="fa-solid fa-sliders text-amber-600 mr-1.5"></i> Gemini Key &amp; Voice Settings (Optional)</span>
+                    <i id="configChevron" class="fa-solid fa-chevron-down text-amber-600 transition-transform"></i>
+                </button>
+                <div id="configBody" class="hidden p-3 border-t border-amber-900/40 flex flex-col gap-3">
+                    <p class="text-amber-500/80 leading-relaxed">
+                        One key serves both tabs: <strong>Gemini</strong> composes fresh answers for the Oracle and renders high-fidelity voices (and downloadable audio). Without it, the Head draws from its deck and speaks with the browser's voice. The key lives only in this page and is never saved.
+                    </p>
+                    <div>
+                        <label class="block text-amber-400 mb-1">Gemini API Key:</label>
+                        <input type="password" id="geminiApiKey" autocomplete="off" placeholder="Enter API Key (Optional)..." class="w-full bg-slate-900 border border-amber-800/80 rounded px-2.5 py-1.5 text-amber-100 focus:outline-none focus:border-amber-500 text-xs">
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-amber-400 mb-1">Voice Archetype:</label>
+                            <select id="geminiVoice" class="w-full bg-slate-900 border border-amber-800/80 rounded px-2 py-1.5 text-amber-200 focus:outline-none text-xs">
+                                <option value="Fenrir">Fenrir (Deep / Dramatic)</option>
+                                <option value="Charon">Charon (Informative / Ancient)</option>
+                                <option value="Kore">Kore (Firm / Resonant)</option>
+                                <option value="Puck">Puck (Upbeat / Mercurial)</option>
+                                <option value="Zephyr">Zephyr (Bright / Air)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-amber-400 mb-1">Pitch / Cadence:</label>
+                            <select id="ttsStylePrompt" class="w-full bg-slate-900 border border-amber-800/80 rounded px-2 py-1.5 text-amber-200 focus:outline-none text-xs">
+                                <option value="Say in an ancient, deep, ominous mechanical whisper: ">Ominous Mechanical</option>
+                                <option value="Say in a grand, booming alchemical resonance: ">Resonant Alchemist</option>
+                                <option value="Say calmly and ominously like a prophetic machine: ">Prophetic Calm</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-amber-900/50 pt-3 flex flex-col gap-3" id="voiceAutomaton">
+                        <div>
+                            <h3 class="font-cinzel text-sm text-amber-300 font-bold flex items-center gap-2"><i class="fa-solid fa-scroll text-amber-600"></i> Voice &amp; Automaton</h3>
+                            <p class="text-[11px] text-amber-500/80">Command the Brass Oracle to speak any phrase.</p>
+                        </div>
+                        <div class="flex flex-col gap-1">
+                            <label for="ttsTextInput" class="text-xs font-cinzel text-amber-400">Message to Speak:</label>
+                            <textarea id="ttsTextInput" rows="3" class="w-full bg-slate-950/90 border border-amber-800/80 rounded p-3 text-amber-100 placeholder-amber-800 focus:outline-none focus:border-amber-500 text-sm font-serif resize-none" placeholder="Type words for the Head to speak aloud...">Time is. Time was. Time is past.</textarea>
+                        </div>
+            <div class="flex flex-col gap-2">
+                <button id="speakBtn" onclick="executeTTS()" class="w-full py-3 bg-gradient-to-r from-amber-900 via-amber-700 to-amber-900 hover:from-amber-800 hover:via-amber-600 hover:to-amber-800 text-amber-100 font-cinzel font-bold tracking-widest rounded border border-amber-500/60 shadow-lg transition transform active:scale-[0.99] flex items-center justify-center gap-2 disabled:opacity-60">
+                    <i class="fa-solid fa-play"></i>
+                    Animate &amp; Speak
+                </button>
+                <div class="grid grid-cols-3 gap-2">
+                    <button id="downloadBtn" onclick="downloadAudio()" class="col-span-2 py-2.5 bg-slate-950/80 hover:bg-amber-950/50 text-amber-300 font-cinzel text-xs font-bold tracking-wider rounded border border-amber-700/70 transition flex items-center justify-center gap-2 disabled:opacity-60">
+                        <i class="fa-solid fa-download"></i>
+                        Download Audio (.wav)
+                    </button>
+                    <button onclick="stopSpeech()" class="py-2.5 bg-slate-950/80 hover:bg-red-950/40 text-amber-400 font-cinzel text-xs font-bold tracking-wider rounded border border-amber-800/70 transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-hand"></i>
+                        Silence
+                    </button>
+                </div>
+                <p class="text-[11px] text-amber-700 leading-snug">Saved audio uses the Gemini voice. A browser's built-in voice cannot be recorded to a file, so add a Gemini key in the settings to enable downloads.</p>
+            </div>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <!-- FOOTER / LORE BAR -->
+    <footer class="w-full text-center py-3 mt-6 border-t border-amber-900/40 text-xs text-amber-600/70 font-serif flex flex-col md:flex-row justify-between items-center px-4 gap-2">
+        <div>
+            <span class="font-cinzel text-amber-500">Ex Arte Saracenorum</span> &mdash; Gerbert of Aurillac, Pope Sylvester II (999&ndash;1003), and the engines of Cordoba &amp; Baghdad
+        </div>
+        <div class="flex items-center gap-2 text-[11px]">
+            <span class="font-cinzel text-amber-600" id="brassLabel">Brass Voice</span>
+            <button id="brassToggle" type="button" role="switch" aria-checked="true" aria-labelledby="brassLabel"
+                title="Gives recorded and Gemini voices a bronze, resonant timbre (the browser's own voice cannot be changed)"
+                onclick="setBrass(!brassOn)" class="brass-switch brass-on"><span class="brass-knob"></span></button>
+        </div>
+    </footer>
+
+    <script>
+        /* =========================================================================
+           1. THREE.JS BRAZEN HEAD - MEDIEVAL MECHANICAL / EARLY ISLAMIC AUTOMATON
+           Riveted bronze helmet-head with an onion dome, nasal guard, armillary
+           eyes, mail aventail, camshaft, astrolabe and a pointed-arch frame.
+           ========================================================================= */
+        let scene, camera, renderer, clock;
+        let headGroup, figure, skullPivot, jawPivot, gearGroup, astrolabe, camShaft, smoke;
+        let eyeLights = [], eyeRigs = [], earGears = [], camFollowers = [], pistons = [];
+        let isSpeaking = false;
+        let isThinking = false;
+        let awake = false;          // the Head sleeps until knocked awake three times
+        let wakeTime = -10;
+        let irisMatG = null;
+        let machineSpeed = 0.15;
+        let nextBlink = 2, blinkStart = -10;
+        let lastDragEnd = -10;
+        let pointerNX = 0, pointerNY = 0;
+
+        // Jaw drivers: audio loudness (Gemini) or word-boundary pulses (Web Speech)
+        let audioCtx = null, activeAnalyser = null, analyserData = null, jawPulse = 0;
+        let jawGain = 2.6;   // jaw opening per unit loudness; recordings are louder, so they use less
+
+        function canvasTex(w, h, draw, repeat) {
+            const c = document.createElement('canvas');
+            c.width = w; c.height = h;
+            draw(c.getContext('2d'), w, h);
+            const t = new THREE.CanvasTexture(c);
+            t.anisotropy = 4;
+            if (repeat) {
+                t.wrapS = t.wrapT = THREE.RepeatWrapping;
+                t.repeat.set(repeat[0], repeat[1]);
+            }
+            return t;
+        }
+
+        function octagram(ctx, cx, cy, r) {
+            ctx.beginPath();
+            for (let i = 0; i < 8; i++) {
+                const a = (i / 8) * Math.PI * 2 - Math.PI / 8;
+                const b = ((i + 3) % 8 / 8) * Math.PI * 2 - Math.PI / 8;
+                ctx.moveTo(cx + Math.cos(a) * r, cy + Math.sin(a) * r);
+                ctx.lineTo(cx + Math.cos(b) * r, cy + Math.sin(b) * r);
+            }
+            ctx.stroke();
+        }
+
+        function drawFrieze(ctx, w, h) {
+            ctx.fillStyle = '#2b2216';
+            ctx.fillRect(0, 0, w, h);
+            ctx.strokeStyle = '#a98532';
+            ctx.lineWidth = 3;
+            ctx.strokeRect(6, 6, w - 12, h - 12);
+            for (let k = 0; k < 2; k++) {
+                const cx = (k + 0.5) * (w / 2), cy = h / 2;
+                octagram(ctx, cx, cy, h * 0.4);
+                ctx.beginPath(); ctx.arc(cx, cy, h * 0.16, 0, Math.PI * 2); ctx.stroke();
+                ctx.beginPath(); ctx.arc(cx, cy, h * 0.43, 0, Math.PI * 2); ctx.stroke();
+            }
+        }
+
+        function drawChain(ctx, w, h) {
+            ctx.fillStyle = '#1c1712';
+            ctx.fillRect(0, 0, w, h);
+            ctx.strokeStyle = '#9a7c3e';
+            ctx.lineWidth = 2;
+            const s = w / 8;
+            for (let y = 0; y <= 8; y++) for (let x = 0; x <= 8; x++) {
+                ctx.beginPath();
+                ctx.arc(x * s + (y % 2 ? s / 2 : 0), y * s * 0.8, s * 0.42, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+        }
+
+        function drawAstrolabe(ctx, w) {
+            const c = w / 2;
+            ctx.clearRect(0, 0, w, w);
+            ctx.strokeStyle = 'rgba(212,175,55,0.75)';
+            ctx.lineWidth = 3;
+            [c - 8, c - 40, c - 92, c * 0.6, c * 0.36, c * 0.12].forEach(r => {
+                ctx.beginPath(); ctx.arc(c, c, r, 0, Math.PI * 2); ctx.stroke();
+            });
+            ctx.lineWidth = 1.5;
+            for (let i = 0; i < 360; i += 2) {
+                const a = i * Math.PI / 180, long = i % 10 === 0;
+                const r1 = c - 40, r2 = c - (long ? 14 : 24);
+                ctx.beginPath();
+                ctx.moveTo(c + Math.cos(a) * r1, c + Math.sin(a) * r1);
+                ctx.lineTo(c + Math.cos(a) * r2, c + Math.sin(a) * r2);
+                ctx.stroke();
+            }
+            ctx.lineWidth = 2;
+            for (let i = 0; i < 12; i++) {
+                const a = (i / 12) * Math.PI * 2;
+                ctx.beginPath();
+                ctx.moveTo(c + Math.cos(a) * c * 0.36, c + Math.sin(a) * c * 0.36);
+                ctx.lineTo(c + Math.cos(a) * (c - 92), c + Math.sin(a) * (c - 92));
+                ctx.stroke();
+            }
+            // rete: star polygon and offset ecliptic ring
+            ctx.lineWidth = 2.5;
+            octagram(ctx, c, c, c * 0.6);
+            ctx.beginPath(); ctx.arc(c + c * 0.12, c - c * 0.06, c * 0.42, 0, Math.PI * 2); ctx.stroke();
+            ctx.beginPath(); ctx.arc(c - c * 0.1, c + c * 0.1, c * 0.24, 0, Math.PI * 2); ctx.stroke();
+            // rule pointer
+            ctx.lineWidth = 4;
+            ctx.beginPath(); ctx.moveTo(c - (c - 92), c); ctx.lineTo(c + (c - 92), c); ctx.stroke();
+        }
+
+        function softSprite() {
+            return canvasTex(64, 64, (ctx, w) => {
+                const g = ctx.createRadialGradient(w / 2, w / 2, 0, w / 2, w / 2, w / 2);
+                g.addColorStop(0, 'rgba(255,255,255,1)');
+                g.addColorStop(1, 'rgba(255,255,255,0)');
+                ctx.fillStyle = g;
+                ctx.fillRect(0, 0, w, w);
+            });
+        }
+
+        function makeGear(r, teeth, thick, mat) {
+            const g = new THREE.Group();
+            g.add(new THREE.Mesh(new THREE.CylinderGeometry(r, r, thick, 32), mat));
+            for (let i = 0; i < teeth; i++) {
+                const a = (i / teeth) * Math.PI * 2;
+                const t = new THREE.Mesh(new THREE.BoxGeometry(r * 0.28, thick, r * 0.2), mat);
+                t.position.set(Math.cos(a) * r * 1.08, 0, Math.sin(a) * r * 1.08);
+                t.rotation.y = -a;
+                g.add(t);
+            }
+            return g;
+        }
+
+        function starShape(n, ro, ri) {
+            const s = new THREE.Shape();
+            for (let i = 0; i < n * 2; i++) {
+                const r = i % 2 ? ri : ro;
+                const a = (i / (n * 2)) * Math.PI * 2 - Math.PI / 2;
+                const x = Math.cos(a) * r, y = Math.sin(a) * r;
+                if (i) s.lineTo(x, y); else s.moveTo(x, y);
+            }
+            s.closePath();
+            return s;
+        }
+
+        function pointedArchPoints(halfW, y0, yBot, c, steps) {
+            const R = halfW + c, V = (x, y) => new THREE.Vector3(x, y, 0), pts = [];
+            for (let y = yBot; y < y0; y += 0.45) pts.push(V(-halfW, y));
+            const thA = Math.acos(-c / R);
+            for (let i = 0; i <= steps; i++) {
+                const th = Math.PI + (thA - Math.PI) * (i / steps);
+                pts.push(V(c + R * Math.cos(th), y0 + R * Math.sin(th)));
+            }
+            const thB = Math.acos(c / R);
+            for (let i = 1; i <= steps; i++) {
+                const th = thB * (1 - i / steps);
+                pts.push(V(-c + R * Math.cos(th), y0 + R * Math.sin(th)));
+            }
+            for (let y = y0 - 0.45; y > yBot; y -= 0.45) pts.push(V(halfW, y));
+            pts.push(V(halfW, yBot));
+            return pts;
+        }
+
+        function init3D() {
+            const container = document.getElementById('canvasContainer');
+            if (!container) return;
+            const width = container.clientWidth || 500;
+            const height = container.clientHeight || 450;
+
+            scene = new THREE.Scene();
+            scene.fog = new THREE.FogExp2(0x050508, 0.04);
+            clock = new THREE.Clock();
+
+            camera = new THREE.PerspectiveCamera(42, width / height, 0.1, 1000);
+            camera.position.set(0, 0.15, 8.2);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(width, height);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            container.appendChild(renderer.domElement);
+
+            /* --- LIGHTING (unchanged: warm key, amber fill, golden rim) --- */
+            scene.add(new THREE.AmbientLight(0x4a3b22, 1.2));
+
+            const keyLight = new THREE.DirectionalLight(0xffdfa0, 1.8);
+            keyLight.position.set(3, 4, 5);
+            scene.add(keyLight);
+
+            const fillLight = new THREE.DirectionalLight(0x885522, 0.8);
+            fillLight.position.set(-4, -1, 3);
+            scene.add(fillLight);
+
+            const rimLight = new THREE.DirectionalLight(0xccaa55, 1.2);
+            rimLight.position.set(0, 5, -4);
+            scene.add(rimLight);
+
+            headGroup = new THREE.Group();
+            headGroup.position.y = 0.2;
+            scene.add(headGroup);
+
+            figure = new THREE.Group();
+            figure.scale.setScalar(0.85);
+            figure.position.y = -0.1;
+            headGroup.add(figure);
+
+            /* --- MATERIALS --- */
+            const bronze = new THREE.MeshStandardMaterial({ color: 0x4a3d2c, metalness: 0.8, roughness: 0.55 });
+            const gold = new THREE.MeshStandardMaterial({ color: 0x8a6b2d, metalness: 0.85, roughness: 0.35 });
+            const dark = new THREE.MeshStandardMaterial({ color: 0x1c1712, metalness: 0.9, roughness: 0.6 });
+            const gemRed = new THREE.MeshStandardMaterial({ color: 0xaa0000, emissive: 0x660000, emissiveIntensity: 0.8, roughness: 0.2 });
+            const gemTeal = new THREE.MeshStandardMaterial({ color: 0x1f7a6a, emissive: 0x0a3d34, emissiveIntensity: 0.9, roughness: 0.2 });
+            const irisMat = new THREE.MeshStandardMaterial({ color: 0xff6600, emissive: 0xff3300, emissiveIntensity: 1.8, roughness: 0.2 });
+            irisMatG = irisMat;
+            irisMat.emissiveIntensity = 0.1;
+            const glowTex = softSprite();
+            const chainMat = new THREE.MeshStandardMaterial({
+                map: canvasTex(128, 128, drawChain, [7, 2]), metalness: 0.7, roughness: 0.6, side: THREE.DoubleSide
+            });
+            const friezeTex = canvasTex(512, 128, drawFrieze, [8, 1]);
+            const friezeMat = new THREE.MeshStandardMaterial({ map: friezeTex, metalness: 0.7, roughness: 0.5 });
+
+            const mesh = (geo, m, x, y, z, parent) => {
+                const o = new THREE.Mesh(geo, m);
+                o.position.set(x, y, z);
+                (parent || figure).add(o);
+                return o;
+            };
+            const rivet = (x, y, z, parent, r) => mesh(new THREE.SphereGeometry(r || 0.035, 8, 8), gold, x, y, z, parent);
+
+            /* --- BACKDROP: astrolabe disc and pointed horseshoe-style arch --- */
+            astrolabe = new THREE.Mesh(
+                new THREE.CircleGeometry(2.1, 64),
+                new THREE.MeshBasicMaterial({
+                    map: canvasTex(1024, 1024, drawAstrolabe), transparent: true, opacity: 0.75,
+                    depthWrite: false, side: THREE.DoubleSide
+                })
+            );
+            astrolabe.position.set(0, 0.5, -2.3);
+            figure.add(astrolabe);
+
+            const archPts = pointedArchPoints(2.0, 0.3, -1.9, 0.55, 24);
+            mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(archPts, false, 'centripetal'), 160, 0.075, 10, false), dark, 0, 0, -1.95);
+            const innerPts = archPts.map(p => new THREE.Vector3(p.x * 0.93, p.y * 0.95 + 0.06, 0));
+            mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(innerPts, false, 'centripetal'), 160, 0.035, 8, false), gold, 0, 0, -1.9);
+            for (let i = 0; i < archPts.length; i += 4) rivet(archPts[i].x, archPts[i].y, -1.88, figure, 0.05);
+
+            /* --- NECK: telescoping rings and pistons --- */
+            for (let i = 0; i < 4; i++) {
+                mesh(new THREE.CylinderGeometry(0.58 + i * 0.015, 0.6 + i * 0.015, 0.11, 24), i % 2 ? dark : gold, 0, -1.3 - i * 0.13, 0);
+            }
+            [[-0.62, 0.2], [0.62, 0.2], [-0.45, -0.45], [0.45, -0.45]].forEach(([x, z]) => {
+                const rod = mesh(new THREE.CylinderGeometry(0.045, 0.045, 0.7, 8), gold, x, -1.55, z);
+                mesh(new THREE.CylinderGeometry(0.075, 0.075, 0.12, 10), dark, x, -1.85, z);
+                pistons.push(rod);
+            });
+
+            /* --- PEDESTAL: octagonal tiers with girih frieze + cog stack --- */
+            gearGroup = new THREE.Group();
+            figure.add(gearGroup);
+            const cog1 = makeGear(1.2, 26, 0.07, dark); cog1.position.y = -1.88; gearGroup.add(cog1);
+            const cog2 = makeGear(0.85, 18, 0.07, gold); cog2.position.y = -1.78; gearGroup.add(cog2);
+
+            mesh(new THREE.CylinderGeometry(1.45, 1.7, 0.35, 8, 1), [friezeMat, gold, gold], 0, -2.1, 0);
+            mesh(new THREE.CylinderGeometry(1.75, 2.0, 0.4, 8, 1), [friezeMat, gold, gold], 0, -2.45, 0);
+
+            /* --- REAR MECHANISM: back plate, camshaft and followers --- */
+            mesh(new THREE.BoxGeometry(2.1, 2.7, 0.06), dark, 0, 0.35, -1.62);
+            mesh(new THREE.BoxGeometry(2.2, 0.06, 0.1), gold, 0, 1.72, -1.62);
+            mesh(new THREE.BoxGeometry(2.2, 0.06, 0.1), gold, 0, -1.02, -1.62);
+
+            camShaft = new THREE.Group();
+            camShaft.position.set(0, -0.2, -1.45);
+            figure.add(camShaft);
+            const shaft = mesh(new THREE.CylinderGeometry(0.05, 0.05, 2.0, 12), gold, 0, 0, 0, camShaft);
+            shaft.rotation.z = Math.PI / 2;
+            for (let i = 0; i < 5; i++) {
+                const x = -0.8 + i * 0.4;
+                const cam = mesh(new THREE.CylinderGeometry(0.16, 0.16, 0.1, 20), bronze, x, 0.07, 0, camShaft);
+                cam.rotation.z = Math.PI / 2;
+                const rod = mesh(new THREE.CylinderGeometry(0.03, 0.03, 1.1, 8), gold, x, 0.6, -1.45);
+                mesh(new THREE.SphereGeometry(0.06, 10, 10), gemRed, 0, 0.58, 0, rod);
+                camFollowers.push({ rod, phase: i * 1.25 });
+            }
+            [-1.0, 1.0].forEach(x => mesh(new THREE.BoxGeometry(0.08, 0.5, 0.08), dark, x, -0.05, -1.45));
+
+            /* --- SKULL (nods on a neck pivot) --- */
+            skullPivot = new THREE.Group();
+            skullPivot.position.set(0, -1.1, 0);
+            figure.add(skullPivot);
+            const skull = new THREE.Group();
+            skull.position.set(0, 1.1, 0);
+            skullPivot.add(skull);
+
+            // Face volume
+            const headPts = [[0, -1.2], [0.5, -1.0], [0.72, -0.6], [0.85, -0.2], [0.92, 0.3], [0.88, 0.8], [0.75, 1.2], [0.5, 1.45], [0, 1.55]]
+                .map(p => new THREE.Vector2(p[0], p[1]));
+            const faceBronze = new THREE.MeshStandardMaterial({ color: 0x7a6238, metalness: 0.7, roughness: 0.42 });
+            const cranium = mesh(new THREE.LatheGeometry(headPts, 32), faceBronze, 0, 0, 0, skull);
+            cranium.scale.set(1.15, 1.05, 1.25);
+
+            // Onion dome with gilded ribs
+            const domePts = [[1.12, 0.45], [1.15, 0.7], [1.14, 1.0], [1.06, 1.3], [0.9, 1.55], [0.68, 1.78], [0.4, 1.98], [0.18, 2.14], [0.07, 2.26], [0.0, 2.36]];
+            const dome = mesh(new THREE.LatheGeometry(domePts.map(p => new THREE.Vector2(p[0], p[1])), 36), bronze, 0, 0, 0, skull);
+            dome.scale.z = 1.08;
+            dome.material = bronze.clone();
+            dome.material.side = THREE.DoubleSide;
+            for (let k = 0; k < 12; k++) {
+                const a = (k / 12) * Math.PI * 2;
+                const pts = domePts.slice(0, -1).map(([r, y]) => new THREE.Vector3(Math.sin(a) * r * 1.02, y, Math.cos(a) * r * 1.02 * 1.08));
+                mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 28, 0.03, 6, false), gold, 0, 0, 0, skull);
+            }
+            // Finial: ball, crescent and spike
+            mesh(new THREE.SphereGeometry(0.09, 12, 12), gold, 0, 2.4, 0, skull);
+            const crescent = mesh(new THREE.TorusGeometry(0.13, 0.028, 8, 24, Math.PI * 1.4), gold, 0, 2.6, 0, skull);
+            crescent.rotation.z = -1.2 * Math.PI;
+            mesh(new THREE.SphereGeometry(0.045, 8, 8), gemRed, 0, 2.6, 0, skull);
+
+            // Riveted helmet band with alternating jewels
+            const band = mesh(new THREE.TorusGeometry(1.12, 0.06, 10, 48), gold, 0, 0.47, 0, skull);
+            band.rotation.x = Math.PI / 2;
+            band.scale.y = 1.1;
+            for (let i = 0; i < 24; i++) {
+                const a = (i / 24) * Math.PI * 2;
+                const gem = mesh(new THREE.SphereGeometry(i % 3 === 0 ? 0.07 : 0.04, 10, 10), i % 3 === 0 ? (i % 2 ? gemTeal : gemRed) : gold,
+                    Math.sin(a) * 1.13, 0.47, Math.cos(a) * 1.13 * 1.1, skull);
+            }
+            // Eight-point star plate with turquoise cabochon
+            const starMesh = mesh(new THREE.ExtrudeGeometry(starShape(8, 0.2, 0.11), { depth: 0.05, bevelEnabled: false }), gold, 0, 0.72, 1.3, skull);
+            mesh(new THREE.SphereGeometry(0.06, 12, 12), gemTeal, 0, 0.72, 1.38, skull);
+
+            // Brow arches
+            [-1, 1].forEach(s => {
+                const brow = mesh(new THREE.TorusGeometry(0.29, 0.05, 8, 20, Math.PI), bronze, s * 0.42, 0.26, 1.15, skull);
+                brow.rotation.z = 0;
+                rivet(s * 0.42 + 0.29, 0.26, 1.15, skull);
+                rivet(s * 0.42 - 0.29, 0.26, 1.15, skull);
+            });
+
+            // Eyes: dark socket, gilded ring, tracking iris, armillary rings, shutter lid
+            [-1, 1].forEach(s => {
+                const rig = new THREE.Group();
+                rig.position.set(s * 0.42, 0.08, 1.05);
+                skull.add(rig);
+
+                const ring = mesh(new THREE.TorusGeometry(0.22, 0.055, 10, 24), gold, 0, 0, 0.06, rig);
+                mesh(new THREE.SphereGeometry(0.2, 18, 18), dark, 0, 0, 0, rig);
+
+                const iris = new THREE.Group();
+                rig.add(iris);
+                const irisMesh = mesh(new THREE.SphereGeometry(0.11, 16, 16), irisMat, 0, 0, 0.1, iris);
+                irisMesh.scale.z = 0.6;
+                mesh(new THREE.SphereGeometry(0.04, 10, 10), dark, 0, 0, 0.17, iris);
+
+                const arm1 = mesh(new THREE.TorusGeometry(0.29, 0.014, 6, 36), gold, 0, 0, 0.05, rig);
+                const arm2 = mesh(new THREE.TorusGeometry(0.33, 0.012, 6, 36), gold, 0, 0, 0.05, rig);
+                arm2.rotation.x = Math.PI / 2;
+
+                const lidPivot = new THREE.Group();
+                rig.add(lidPivot);
+                mesh(new THREE.SphereGeometry(0.215, 18, 12, 0, Math.PI * 2, 0, Math.PI / 2), bronze, 0, 0, 0, lidPivot);
+
+                const light = new THREE.PointLight(0xff3300, 1.2, 2.0);
+                light.position.set(0, 0, 0.3);
+                rig.add(light);
+                light.intensity = 0;
+                eyeLights.push(light);
+
+                // Soft halo that stands in for bloom
+                const glow = new THREE.Sprite(new THREE.SpriteMaterial({
+                    map: glowTex, color: 0xff6a1a, blending: THREE.AdditiveBlending,
+                    transparent: true, depthWrite: false, opacity: 0
+                }));
+                glow.scale.set(1.15, 1.15, 1);
+                glow.position.set(0, 0, 0.32);
+                rig.add(glow);
+
+                eyeRigs.push({ rig, iris, arm1, arm2, lidPivot, glow, side: s });
+            });
+
+            // Nasal guard (spangenhelm style) with flared tip
+            const nasal = mesh(new THREE.BoxGeometry(0.13, 1.0, 0.09), gold, 0, -0.08, 1.2, skull);
+            nasal.rotation.x = 0.26;
+            const nasalTip = mesh(new THREE.ConeGeometry(0.11, 0.22, 4), gold, 0, -0.62, 1.04, skull);
+            nasalTip.rotation.x = Math.PI + 0.26;
+            nasalTip.rotation.y = Math.PI / 4;
+            for (let i = 0; i < 4; i++) rivet(0, 0.25 - i * 0.22, 1.2 - i * 0.06, skull, 0.03);
+
+            // Riveted cheek plates
+            [-1, 1].forEach(s => {
+                const cheek = mesh(new THREE.BoxGeometry(0.46, 0.55, 0.1), bronze, s * 0.79, -0.18, 0.75, skull);
+                cheek.rotation.y = s * 0.9;
+                const edge = mesh(new THREE.BoxGeometry(0.5, 0.05, 0.13), gold, s * 0.79, -0.46, 0.75, skull);
+                edge.rotation.y = s * 0.9;
+                [[-0.15, 0.2], [0.15, 0.2], [-0.15, -0.15], [0.15, -0.15]].forEach(([dx, dy]) => {
+                    const c = Math.cos(s * 0.9), sn = Math.sin(s * 0.9);
+                    rivet(s * 0.79 + dx * c + s * 0.05 * sn, -0.18 + dy, 0.75 - dx * sn * 1 + 0.05 * c, skull, 0.028);
+                });
+            });
+
+            // Mouth: dark cavity, upper lip plate
+            mesh(new THREE.BoxGeometry(0.52, 0.34, 0.14), dark, 0, -0.64, 0.92, skull);
+            mesh(new THREE.BoxGeometry(0.6, 0.09, 0.12), gold, 0, -0.47, 0.99, skull);
+
+            // Jaw: pivots at the "ear" axle; carries lip, chin, teeth and lamellar beard
+            jawPivot = new THREE.Group();
+            jawPivot.position.set(0, -0.4, 0.3);
+            skull.add(jawPivot);
+            mesh(new THREE.BoxGeometry(0.6, 0.1, 0.12), gold, 0, -0.26, 0.7, jawPivot);
+            const chin = mesh(new THREE.BoxGeometry(0.66, 0.4, 0.16), bronze, 0, -0.5, 0.54, jawPivot);
+            chin.rotation.x = 0.3;
+            [-1, 1].forEach(s => {
+                const sideJaw = mesh(new THREE.BoxGeometry(0.2, 0.5, 0.42), bronze, s * 0.6, -0.4, 0.3, jawPivot);
+                sideJaw.rotation.y = s * 0.8;
+            });
+            for (let i = 0; i < 8; i++) {
+                mesh(new THREE.BoxGeometry(0.045, 0.07, 0.05), i % 2 ? gold : dark, -0.2 + i * 0.057, -0.17, 0.68, jawPivot);
+            }
+            for (let i = 0; i < 5; i++) {
+                const lame = mesh(new THREE.BoxGeometry(0.62 - i * 0.1, 0.15, 0.05), i % 2 ? gold : bronze, 0, -0.8 - i * 0.14, 0.46 - i * 0.04, jawPivot);
+                lame.rotation.x = 0.3 + i * 0.05;
+            }
+            const drop = mesh(new THREE.OctahedronGeometry(0.09), gemTeal, 0, -1.55, 0.28, jawPivot);
+            drop.scale.y = 1.7;
+
+            // Ear gears and the axle through the skull
+            const axle = mesh(new THREE.CylinderGeometry(0.035, 0.035, 2.7, 10), gold, 0, 0.12, 0.05, skull);
+            axle.rotation.z = Math.PI / 2;
+            [[-1, 0.34, 0.12, 14, 1], [1, 0.34, 0.12, 14, -1], [-1, 0.2, -0.28, 10, -1], [1, 0.2, -0.28, 10, 1]].forEach(([s, r, y, t, dir]) => {
+                const mount = new THREE.Group();
+                mount.position.set(s * 1.24, y + (r < 0.3 ? 0.0 : 0), r < 0.3 ? 0.62 * 0.0 + 0.05 : 0.05);
+                mount.rotation.z = Math.PI / 2;
+                const gear = makeGear(r, t, 0.07, gold);
+                mount.add(gear);
+                mesh(new THREE.TorusGeometry(r * 0.45, 0.02, 6, 16), dark, 0, 0.04, 0, gear).rotation.x = Math.PI / 2;
+                skull.add(mount);
+                earGears.push({ gear, dir });
+            });
+
+            // Mail aventail draping the back and sides of the head
+            const aventail = mesh(new THREE.CylinderGeometry(1.16, 0.78, 1.3, 36, 1, true, Math.PI / 3, (4 * Math.PI) / 3), chainMat, 0, -0.25, 0, skull);
+            aventail.scale.z = 1.12;
+            const hem = mesh(new THREE.TorusGeometry(0.78, 0.03, 6, 36, (4 * Math.PI) / 3), gold, 0, -0.9, 0, skull);
+            hem.rotation.x = Math.PI / 2;
+            hem.rotation.z = -Math.PI / 3 - Math.PI / 2;
+            hem.scale.y = 1.12;
+
+            /* --- ICHOR FUMES (Bacon's alchemical vapours) --- */
+            const SM = 160;
+            const smokeGeo = new THREE.BufferGeometry();
+            smokeGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(SM * 3).fill(-99), 3));
+            smokeGeo.setAttribute('color', new THREE.BufferAttribute(new Float32Array(SM * 3), 3));
+            smoke = new THREE.Points(smokeGeo, new THREE.PointsMaterial({
+                map: softSprite(), size: 0.62, vertexColors: true, transparent: true,
+                blending: THREE.AdditiveBlending, depthWrite: false
+            }));
+            smoke.frustumCulled = false;
+            smoke.userData = { life: new Float32Array(SM), vel: new Float32Array(SM * 3) };
+            figure.add(smoke);
+
+            setupInteraction(container);
+            animate3D();
+        }
+
+        /* --- ORBIT, ZOOM, POINTER TRACKING --- */
+        let isDragging = false;
+        let previousMousePosition = { x: 0, y: 0 };
+
+        function setupInteraction(container) {
+            const start = (x, y) => { isDragging = true; previousMousePosition = { x, y }; };
+            const move = (x, y) => {
+                if (!isDragging || !headGroup) return;
+                headGroup.rotation.y += (x - previousMousePosition.x) * 0.008;
+                headGroup.rotation.x += (y - previousMousePosition.y) * 0.008;
+                headGroup.rotation.x = Math.max(-0.5, Math.min(0.5, headGroup.rotation.x));
+                previousMousePosition = { x, y };
+            };
+            const end = () => { if (isDragging) lastDragEnd = clock.elapsedTime; isDragging = false; };
+
+            container.addEventListener('mousedown', e => start(e.clientX, e.clientY));
+            window.addEventListener('mouseup', end);
+            container.addEventListener('mousemove', e => move(e.clientX, e.clientY));
+
+            container.addEventListener('touchstart', e => { if (e.touches.length === 1) start(e.touches[0].clientX, e.touches[0].clientY); }, { passive: true });
+            container.addEventListener('touchmove', e => { if (e.touches.length === 1) move(e.touches[0].clientX, e.touches[0].clientY); }, { passive: true });
+            container.addEventListener('touchend', end);
+
+            container.addEventListener('wheel', e => {
+                e.preventDefault();
+                camera.position.z = Math.max(4.2, Math.min(10, camera.position.z + e.deltaY * 0.004));
+            }, { passive: false });
+
+            // Knocks: a quick press-and-release that barely moves (mouse click or finger tap)
+            let down = null;
+            container.addEventListener('pointerdown', e => { down = { x: e.clientX, y: e.clientY, t: performance.now() }; });
+            container.addEventListener('pointerup', e => {
+                if (!down) return;
+                const moved = Math.hypot(e.clientX - down.x, e.clientY - down.y);
+                const quick = performance.now() - down.t < 450;
+                down = null;
+                if (moved < 8 && quick) registerKnock();
+            });
+            container.addEventListener('pointercancel', () => { down = null; });
+
+            window.addEventListener('pointermove', e => {
+                pointerNX = (e.clientX / window.innerWidth) * 2 - 1;
+                pointerNY = (e.clientY / window.innerHeight) * 2 - 1;
+            });
+        }
+
+        function emitFume(x, y, z, spread, vx, vy, vz) {
+            const { life, vel } = smoke.userData;
+            const pos = smoke.geometry.attributes.position.array;
+            for (let i = 0; i < life.length; i++) {
+                if (life[i] > 0) continue;
+                life[i] = 1;
+                pos[i * 3] = x + (Math.random() - 0.5) * spread;
+                pos[i * 3 + 1] = y;
+                pos[i * 3 + 2] = z + (Math.random() - 0.5) * spread * 0.5;
+                vel[i * 3] = vx + (Math.random() - 0.5) * 0.14;
+                vel[i * 3 + 1] = vy * (0.8 + Math.random() * 0.5);
+                vel[i * 3 + 2] = vz + (Math.random() - 0.5) * 0.1;
+                return;
+            }
+        }
+
+        function updateFumes(dt) {
+            const { life, vel } = smoke.userData;
+            const pos = smoke.geometry.attributes.position.array;
+            const col = smoke.geometry.attributes.color.array;
+            const r = Math.random;
+
+            if (awake) {
+                const talk = isSpeaking, think = isThinking;
+                // Crown vent at the finial: a column of vapour, heaviest while the Head ponders
+                const crown = think ? 1.6 : talk ? 0.7 : 0.05;
+                for (let n = crown; n > 0; n -= 1) if (r() < Math.min(1, n)) emitFume(0, 2.55, 0, 0.12, 0, 0.55, 0.03);
+                // Shoulder vents on the dome while busy
+                if (think || talk) [-1, 1].forEach(s => { if (r() < 0.35) emitFume(s * 0.95, 1.55, 0, 0.1, s * 0.12, 0.4, 0.02); });
+                // Mouth: breath of the machine while it speaks
+                if (talk) for (let n = 0; n < 2; n++) if (r() < 0.7) emitFume(0, -0.62, 1.1, 0.25, 0, 0.25, 0.25);
+            }
+
+            for (let i = 0; i < life.length; i++) {
+                if (life[i] <= 0) { col[i * 3] = col[i * 3 + 1] = col[i * 3 + 2] = 0; continue; }
+                life[i] -= dt * 0.42;
+                vel[i * 3] += (r() - 0.5) * 0.4 * dt;                   // lazy drift
+                pos[i * 3] += vel[i * 3] * dt;
+                pos[i * 3 + 1] += vel[i * 3 + 1] * dt;
+                pos[i * 3 + 2] += vel[i * 3 + 2] * dt;
+                const f = Math.max(0, life[i]) * 0.4;
+                col[i * 3] = f * 0.85; col[i * 3 + 1] = f * 0.7; col[i * 3 + 2] = f * 0.4;
+            }
+            smoke.geometry.attributes.position.needsUpdate = true;
+            smoke.geometry.attributes.color.needsUpdate = true;
+        }
+
+        function animate3D() {
+            requestAnimationFrame(animate3D);
+            const dt = Math.min(clock.getDelta(), 0.05);
+            const t = clock.elapsedTime;
+            const busy = awake && (isSpeaking || isThinking);
+            machineSpeed = THREE.MathUtils.lerp(machineSpeed, busy ? 3.2 : (awake ? 0.8 : 0.15), 0.05);
+            if (irisMatG) irisMatG.emissiveIntensity = THREE.MathUtils.lerp(irisMatG.emissiveIntensity, awake ? 1.8 : 0.1, 0.05);
+
+            // Idle sway returns after the viewer lets go
+            if (headGroup && !isDragging && t - lastDragEnd > 3) {
+                headGroup.rotation.y = THREE.MathUtils.lerp(headGroup.rotation.y, Math.sin(t * 0.3) * 0.25, 0.02);
+                headGroup.rotation.x = THREE.MathUtils.lerp(headGroup.rotation.x, 0, 0.02);
+            }
+
+            // Cog stacks, ear gears, astrolabe, camshaft
+            if (gearGroup) gearGroup.children.forEach((g, i) => { g.rotation.y += (i % 2 ? -1 : 1) * 0.35 * dt * machineSpeed; });
+            earGears.forEach(({ gear, dir }) => { gear.rotation.y += dir * 0.9 * dt * machineSpeed; });
+            if (astrolabe) astrolabe.rotation.z += 0.05 * dt * machineSpeed;
+            if (camShaft) {
+                camShaft.rotation.x += 1.2 * dt * machineSpeed;
+                camFollowers.forEach(({ rod, phase }) => { rod.position.y = 0.6 + 0.16 * Math.sin(camShaft.rotation.x + phase); });
+            }
+            pistons.forEach((p, i) => { p.position.y = -1.55 + Math.sin(t * 1.4 * machineSpeed + i) * 0.04; });
+
+            // Head nod
+            if (skullPivot) {
+                const nod = busy ? Math.sin(t * 5) * 0.025 : Math.sin(t * 0.8) * 0.008;
+                skullPivot.rotation.x = THREE.MathUtils.lerp(skullPivot.rotation.x, nod, 0.2);
+            }
+
+            // Eyes: pointer tracking, spinning armillary rings, blinking shutters
+            if (t > nextBlink) { blinkStart = t; nextBlink = t + 2.5 + Math.random() * 4; }
+            const bt = (t - blinkStart) / 0.12;
+            const blink = bt >= 0 && bt <= 2 ? 1 - Math.abs(bt - 1) : 0;
+            const waking = t - wakeTime < 1.6;
+            eyeRigs.forEach(e => {
+                e.iris.rotation.y = THREE.MathUtils.lerp(e.iris.rotation.y, awake ? pointerNX * 0.5 : 0, 0.08);
+                e.iris.rotation.x = THREE.MathUtils.lerp(e.iris.rotation.x, awake ? pointerNY * 0.35 : 0, 0.08);
+                e.arm1.rotation.y += 0.6 * dt * machineSpeed;
+                e.arm2.rotation.y -= 0.9 * dt * machineSpeed;
+                const lidTarget = awake ? 0.05 + blink * 1.45 : 1.45;
+                e.lidPivot.rotation.x = THREE.MathUtils.lerp(e.lidPivot.rotation.x, lidTarget, awake ? (waking ? 0.06 : 0.5) : 0.08);
+            });
+
+            // Jaw + eye glow while speaking
+            if (jawPivot && isSpeaking && awake) {
+                let open;
+                if (activeAnalyser) {
+                    activeAnalyser.getByteTimeDomainData(analyserData);
+                    let sum = 0;
+                    for (let i = 0; i < analyserData.length; i++) { const d = (analyserData[i] - 128) / 128; sum += d * d; }
+                    open = Math.min(0.42, Math.sqrt(sum / analyserData.length) * jawGain);
+                } else {
+                    jawPulse *= 0.9;
+                    open = jawPulse * 0.32 + (Math.sin(t * 20) * 0.5 + 0.5) * 0.07;
+                }
+                jawPivot.rotation.x = THREE.MathUtils.lerp(jawPivot.rotation.x, open, 0.5);
+                eyeLights.forEach(l => { l.intensity = 1.4 + Math.random() * 1.8; });
+            } else if (jawPivot) {
+                jawPivot.rotation.x = THREE.MathUtils.lerp(jawPivot.rotation.x, 0, 0.1);
+                eyeLights.forEach(l => {
+                    const target = !awake ? 0 : isThinking ? 1.6 + Math.sin(t * 6) * 0.7 : 0.7;
+                    l.intensity = THREE.MathUtils.lerp(l.intensity, target, 0.08);
+                });
+            }
+            eyeRigs.forEach((e, i) => {
+                e.glow.material.opacity = Math.min(0.85, eyeLights[i].intensity * 0.28);
+            });
+
+            if (smoke) updateFumes(dt);
+            if (renderer && scene && camera) renderer.render(scene, camera);
+        }
+
+        window.addEventListener('resize', () => {
+            const container = document.getElementById('canvasContainer');
+            if (!container || !renderer || !camera) return;
+            camera.aspect = container.clientWidth / container.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(container.clientWidth, container.clientHeight);
+        });
+
+        /* =========================================================================
+           2. INTERFACE
+           ========================================================================= */
+        /* ---- Clockwork sound (synthesised; no audio files) ---- */
+        let fxGain = null, noiseBuf = null, soundOn = true, tickFlip = false, tickingStarted = false;
+
+        function ensureAudio() {
+            audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            if (!fxGain) {
+                fxGain = audioCtx.createGain();
+                fxGain.gain.value = soundOn ? 1 : 0;
+                fxGain.connect(audioCtx.destination);
+                noiseBuf = audioCtx.createBuffer(1, audioCtx.sampleRate * 0.1, audioCtx.sampleRate);
+                const d = noiseBuf.getChannelData(0);
+                for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+            }
+            return audioCtx;
+        }
+
+        function noiseBurst(c, t, freq, q, gain, dur) {
+            const src = c.createBufferSource();
+            src.buffer = noiseBuf;
+            const f = c.createBiquadFilter();
+            f.type = 'bandpass'; f.frequency.value = freq; f.Q.value = q;
+            const g = c.createGain();
+            g.gain.setValueAtTime(gain, t);
+            g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+            src.connect(f); f.connect(g); g.connect(fxGain);
+            src.start(t); src.stop(t + dur + 0.02);
+        }
+
+        function knockSound() {
+            try {
+                const c = ensureAudio(), t = c.currentTime;
+                const o = c.createOscillator(), g = c.createGain();
+                o.type = 'sine';
+                o.frequency.setValueAtTime(190, t);
+                o.frequency.exponentialRampToValueAtTime(70, t + 0.12);
+                g.gain.setValueAtTime(0.9, t);
+                g.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
+                o.connect(g); g.connect(fxGain);
+                o.start(t); o.stop(t + 0.22);
+                noiseBurst(c, t, 1800, 1.2, 0.5, 0.05);
+            } catch (e) { /* audio unavailable */ }
+        }
+
+        function chimeSound(base) {
+            try {
+                const c = ensureAudio(), t = c.currentTime, f0 = base || 330;
+                [[1, 0.5, 2.8], [2.01, 0.25, 2.2], [2.76, 0.18, 1.6], [4.07, 0.1, 1.2], [5.4, 0.06, 0.8]].forEach(([r, a, d]) => {
+                    const o = c.createOscillator(), g = c.createGain();
+                    o.type = 'sine';
+                    o.frequency.value = f0 * r;
+                    g.gain.setValueAtTime(0.0001, t);
+                    g.gain.exponentialRampToValueAtTime(a * 0.5, t + 0.01);
+                    g.gain.exponentialRampToValueAtTime(0.0001, t + d);
+                    o.connect(g); g.connect(fxGain);
+                    o.start(t); o.stop(t + d + 0.05);
+                });
+            } catch (e) { /* audio unavailable */ }
+        }
+
+        function tickLoop() {
+            if (awake && soundOn && audioCtx && fxGain) {
+                tickFlip = !tickFlip;
+                noiseBurst(audioCtx, audioCtx.currentTime, tickFlip ? 2600 : 1900, 6, 0.045, 0.025);
+            }
+            setTimeout(tickLoop, 520 / Math.max(0.5, machineSpeed));
+        }
+
+        function toggleSound() {
+            soundOn = !soundOn;
+            if (fxGain) fxGain.gain.value = soundOn ? 1 : 0;
+            document.getElementById('soundIcon').className = `fa-solid ${soundOn ? 'fa-volume-high' : 'fa-volume-xmark'} text-xs`;
+            if (soundOn) knockSound();
+        }
+
+        /* ---- Knock-to-wake ritual ---- */
+        let knockCount = 0, lastKnock = 0;
+
+        function paintPips(n) {
+            document.querySelectorAll('.knock-pip').forEach((p, i) => {
+                p.style.background = i < n ? '#d4af37' : 'transparent';
+                p.style.boxShadow = i < n ? '0 0 8px #d4af37' : 'none';
+            });
+        }
+
+        function registerKnock() {
+            knockSound();
+            steamInit();
+            if (skullPivot) skullPivot.rotation.x += 0.03;
+            if (awake) return;
+            const now = performance.now();
+            knockCount = now - lastKnock > 1500 ? 1 : knockCount + 1;
+            lastKnock = now;
+            paintPips(knockCount);
+            if (knockCount >= 3) wakeHead();
+        }
+
+        function wakeHead() {
+            awake = true;
+            wakeTime = clock.elapsedTime;
+            knockCount = 0;
+            setTimeout(() => chimeSound(262), 250);
+            steamInit();
+            setTimeout(() => playSteam('release', { gain: 0.5, offset: 0, dur: 2.1 }), 150);
+            document.getElementById('knockUi').style.opacity = '0';
+            document.getElementById('oracleBtn').classList.remove('lever-asleep');
+            setAutomatonStatus("Watchful", "text-emerald-400");
+            if (!tickingStarted) { tickingStarted = true; tickLoop(); }
+            toast("The brass stirs. The Head is awake.");
+        }
+
+        function requireAwake() {
+            if (awake) return true;
+            toast("The Head slumbers. Knock thrice upon the brass to wake it.");
+            const ui = document.getElementById('knockUi');
+            ui.style.opacity = '1';
+            return false;
+        }
+
+        function toggleConfig() {
+            document.getElementById('configBody').classList.toggle('hidden');
+            document.getElementById('configChevron').classList.toggle('rotate-180');
+        }
+
+        function openConfig() {
+            const body = document.getElementById('configBody');
+            if (body.classList.contains('hidden')) toggleConfig();
+        }
+
+        function setAutomatonStatus(status, colorClass) {
+            const el = document.getElementById('automatonStatus');
+            el.textContent = status;
+            el.className = colorClass;
+        }
+
+        function showSubtitles(text) {
+            const sub = document.getElementById('speechSubtitles');
+            sub.textContent = `"${text}"`;
+            sub.style.opacity = '1';
+        }
+
+        function hideSubtitles() {
+            document.getElementById('speechSubtitles').style.opacity = '0';
+        }
+
+        let toastTimer = null;
+        function toast(msg) {
+            const el = document.getElementById('toast');
+            el.textContent = msg;
+            el.style.opacity = '1';
+            el.style.transform = 'translate(-50%, 0)';
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => {
+                el.style.opacity = '0';
+                el.style.transform = 'translate(-50%, -8px)';
+            }, 4200);
+        }
+
+        function skyLine() {
+            const d = new Date(), v = (d.getMonth() + 1) * 100 + d.getDate();
+            const starts = [[120, 'Aquarius'], [219, 'Pisces'], [321, 'Aries'], [420, 'Taurus'], [521, 'Gemini'], [621, 'Cancer'],
+                [723, 'Leo'], [823, 'Virgo'], [923, 'Libra'], [1023, 'Scorpio'], [1122, 'Sagittarius'], [1222, 'Capricorn']];
+            let sign = 'Capricorn';
+            starts.forEach(([s, n]) => { if (v >= s) sign = n; });
+            const ruler = ['Sun', 'Moon', 'Mars', 'Mercury', 'Jupiter', 'Venus', 'Saturn'][d.getDay()];
+            document.getElementById('skyLine').textContent = `Sun in ${sign} · Day of ${ruler}`;
+        }
+
+        /* =========================================================================
+           3. SPEECH ENGINE (Web Speech + Gemini) AND AUDIO DOWNLOAD
+           ========================================================================= */
+        let speechRun = 0;
+        let currentAudio = null;
+        let lastAudio = null; // { key, blob } of the most recent Gemini render
+
+        /* ---- Fortune box: shown after the Head has spoken, closed by a tap, then the Head sleeps ---- */
+        let pendingFortune = null;
+
+        function presentFortune() {
+            const text = pendingFortune;
+            pendingFortune = null;
+            if (!text) return;
+            const box = document.getElementById('fortuneBox');
+            document.getElementById('fortuneText').textContent = `"${text}"`;
+            box.classList.remove('hidden', 'fortune-in');
+            void box.offsetWidth;                      // restart the fade-in
+            box.classList.add('fortune-in');
+        }
+
+        function hideFortuneBox() {
+            document.getElementById('fortuneBox').classList.add('hidden');
+        }
+
+        function sleepHead() {
+            hideFortuneBox();
+            awake = false;
+            knockCount = 0;
+            paintPips(0);
+            document.getElementById('knockUi').style.opacity = '1';
+            document.getElementById('oracleBtn').classList.add('lever-asleep');
+            setAutomatonStatus("Slumbering", "text-amber-600");
+            playSteam('release', { gain: 0.2, offset: 2.1, dur: 1.5 });   // a last sigh of steam
+        }
+
+        function dismissFortune() {
+            if (!awake || document.getElementById('fortuneBox').classList.contains('hidden')) return;
+            sleepHead();
+        }
+
+        function stopSpeech() {
+            speechRun++;
+            if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+            if (currentStop) currentStop();
+            if (currentAudio) {
+                currentAudio.pause();
+                currentAudio.dispatchEvent(new Event('ended'));
+                currentAudio = null;
+            }
+            isSpeaking = false;
+            activeAnalyser = null;
+            const btn = document.getElementById('speakBtn');
+            btn.disabled = false;
+            btn.innerHTML = `<i class="fa-solid fa-play"></i> Animate &amp; Speak`;
+            if (awake) setAutomatonStatus("Watchful", "text-emerald-400");
+            hideSubtitles();
+            presentFortune();                          // silenced early: the written fortune still appears
+        }
+
+        async function executeTTS() {
+            const textInput = document.getElementById('ttsTextInput').value.trim();
+            if (!textInput) {
+                toast("Provide a phrase or incantation for the Head to speak!");
+                return;
+            }
+            if (!requireAwake()) return;
+
+            const apiKey = document.getElementById('geminiApiKey').value.trim();
+            const speakBtn = document.getElementById('speakBtn');
+            const run = ++speechRun;
+            const forFortune = !!pendingFortune;       // fortunes are written out after the Head has spoken
+
+            if ('speechSynthesis' in window && (speechSynthesis.speaking || speechSynthesis.pending)) speechSynthesis.cancel();
+
+            speakBtn.disabled = true;
+            speakBtn.innerHTML = `<i class="fa-solid fa-gear fa-spin"></i> Invoking Brass Core...`;
+            setAutomatonStatus("Reciting...", "text-amber-400 animate-pulse");
+            if (!forFortune) showSubtitles(textInput);
+
+            let played = false;
+            const clipUrl = FORTUNE_AUDIO.get(textInput);
+            if (clipUrl) {
+                try { await playClip(clipUrl); played = true; }
+                catch (err) { console.warn('Recording unavailable, using another voice:', err); }
+            }
+            if (played) { /* the recording has finished */ }
+            else if (apiKey) {
+                try {
+                    const blob = await getGeminiAudio(textInput, apiKey);
+                    if (run !== speechRun) return;
+                    await playBlob(blob);
+                } catch (err) {
+                    console.warn("Gemini TTS failed, reverting to local speech synth:", err);
+                    if (run !== speechRun) return;
+                    toast(`Gemini voice failed (${err.message}). Using the local voice instead.`);
+                    await speakWithWebSpeech(textInput);
+                }
+            } else {
+                await speakWithWebSpeech(textInput);
+            }
+
+            if (run !== speechRun) return;
+            speakBtn.disabled = false;
+            speakBtn.innerHTML = `<i class="fa-solid fa-play"></i> Animate &amp; Speak`;
+            setAutomatonStatus("Watchful", "text-emerald-400");
+            if (forFortune) presentFortune();
+            else setTimeout(() => { if (run === speechRun) hideSubtitles(); }, 3000);
+        }
+
+        function pickVoice() {
+            const voices = window.speechSynthesis.getVoices().filter(v => v.lang && v.lang.startsWith('en'));
+            return voices.find(v => /Male|David|Daniel|Alex|Fred|Arthur|Oliver/i.test(v.name)) || voices[0];
+        }
+
+        function speakWithWebSpeech(text) {
+            return new Promise((resolve) => {
+                if (!('speechSynthesis' in window)) {
+                    toast("This browser has no speech synthesis. Add a Gemini key to hear the Head.");
+                    resolve();
+                    return;
+                }
+                const ss = window.speechSynthesis;
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.rate = 0.85;
+                utterance.pitch = 0.65;
+                const voice = pickVoice();
+                if (voice) utterance.voice = voice;
+
+                let started = false;
+                // If the browser never begins speaking, say so instead of staying silent
+                const watchdog = setTimeout(() => {
+                    if (started) return;
+                    toast("Your browser's voice did not start. Check the volume and silent switch, or add a Gemini key in the settings for a built-in voice.");
+                }, 3500);
+
+                utterance.onstart = () => { started = true; clearTimeout(watchdog); isSpeaking = true; activeAnalyser = null; };
+                utterance.onboundary = () => { jawPulse = 1; };
+                utterance.onend = () => { clearTimeout(watchdog); isSpeaking = false; resolve(); };
+                utterance.onerror = (e) => {
+                    clearTimeout(watchdog);
+                    isSpeaking = false;
+                    if (e && e.error && e.error !== 'interrupted' && e.error !== 'canceled') {
+                        toast(`Browser voice error: ${e.error}. Add a Gemini key in the settings for a built-in voice.`);
+                    }
+                    resolve();
+                };
+                try { ss.resume(); } catch (err) { /* ignore */ }   // some browsers leave speech paused
+                ss.speak(utterance);
+            });
+        }
+
+        function ttsKey(text) {
+            return [text, document.getElementById('geminiVoice').value, document.getElementById('ttsStylePrompt').value].join('|');
+        }
+
+        async function getGeminiAudio(text, apiKey) {
+            const key = ttsKey(text);
+            if (lastAudio && lastAudio.key === key) return lastAudio.blob;
+
+            const voiceName = document.getElementById('geminiVoice').value;
+            const stylePrompt = document.getElementById('ttsStylePrompt').value;
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent`;
+
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
+                body: JSON.stringify({
+                    contents: [{ parts: [{ text: `${stylePrompt} "${text}"` }] }],
+                    generationConfig: {
+                        responseModalities: ["AUDIO"],
+                        speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName } } }
+                    }
+                })
+            });
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+            const data = await response.json();
+            const part = data?.candidates?.[0]?.content?.parts?.[0];
+            const base64Audio = part?.inlineData?.data;
+            const mimeType = part?.inlineData?.mimeType || "audio/L16;rate=24000";
+            if (!base64Audio) throw new Error("no audio returned");
+
+            const sampleRate = parseInt(mimeType.match(/rate=(\d+)/)?.[1] || "24000", 10);
+            const blob = pcmToWav(new Int16Array(base64ToArrayBuffer(base64Audio)), sampleRate);
+            lastAudio = { key, blob };
+            return blob;
+        }
+
+
+        /* =========================================================================
+           RECORDED VOICE + BRASS EFFECT
+           Fortunes with an audio file play that recording; everything else falls back
+           to the browser voice. The brass chain (resonant filters, a short metallic
+           comb and a stone-chamber reverb) is applied to recordings and Gemini audio.
+           The browser's own voice cannot be processed, so it is never affected.
+           ========================================================================= */
+        let brassOn = true;
+        try { brassOn = localStorage.getItem('brazenBrass') !== 'off'; } catch (e) { /* storage unavailable */ }
+        let currentStop = null, reverbIR = null;
+        const clipCache = new Map();
+
+        function loadClip(url) {
+            if (!clipCache.has(url)) {
+                const p = (async () => {
+                    const r = await fetch(url);
+                    if (!r.ok) throw new Error('HTTP ' + r.status);
+                    const ab = await r.arrayBuffer();
+                    return await new Promise((res, rej) => ensureAudio().decodeAudioData(ab, res, rej));
+                })();
+                p.catch(() => clipCache.delete(url));
+                clipCache.set(url, p);
+            }
+            return clipCache.get(url);
+        }
+
+        function chamberIR(c) {
+            if (reverbIR && reverbIR.sampleRate === c.sampleRate) return reverbIR;
+            const len = Math.floor(c.sampleRate * 1.7);
+            reverbIR = c.createBuffer(2, len, c.sampleRate);
+            for (let ch = 0; ch < 2; ch++) {
+                const d = reverbIR.getChannelData(ch);
+                for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2.6);
+            }
+            return reverbIR;
+        }
+
+        function buildVoiceChain(c) {
+            const input = c.createGain();
+            if (!brassOn) return { input, output: input };
+            const hp = c.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 110;
+            const low = c.createBiquadFilter(); low.type = 'lowshelf'; low.frequency.value = 220; low.gain.value = 4;
+            const p1 = c.createBiquadFilter(); p1.type = 'peaking'; p1.frequency.value = 950; p1.Q.value = 5; p1.gain.value = 5;
+            const p2 = c.createBiquadFilter(); p2.type = 'peaking'; p2.frequency.value = 2600; p2.Q.value = 7; p2.gain.value = 4;
+            const comb = c.createDelay(0.05); comb.delayTime.value = 0.011;
+            const fb = c.createGain(); fb.gain.value = 0.42;
+            const combMix = c.createGain(); combMix.gain.value = 0.3;
+            const conv = c.createConvolver(); conv.buffer = chamberIR(c);
+            const wet = c.createGain(); wet.gain.value = 0.28;
+            const dry = c.createGain(); dry.gain.value = 0.9;
+            const out = c.createDynamicsCompressor();
+            input.connect(hp); hp.connect(low); low.connect(p1); p1.connect(p2);
+            p2.connect(dry); dry.connect(out);
+            p2.connect(comb); comb.connect(fb); fb.connect(comb); comb.connect(combMix); combMix.connect(out);
+            p2.connect(conv); conv.connect(wet); wet.connect(out);
+            return { input, output: out };
+        }
+
+        // Where the voice actually starts and stops, so quiet lead-in or tail never delays the Head
+        function voiceBounds(buf) {
+            if (buf._bounds) return buf._bounds;
+            const thr = 0.02, n = buf.length;
+            let first = n, last = 0;
+            for (let ch = 0; ch < buf.numberOfChannels; ch++) {
+                const d = buf.getChannelData(ch);
+                for (let i = 0; i < n; i++) if (Math.abs(d[i]) > thr) { if (i < first) first = i; break; }
+                for (let i = n - 1; i >= 0; i--) if (Math.abs(d[i]) > thr) { if (i > last) last = i; break; }
+            }
+            const sr = buf.sampleRate;
+            const start = first >= last ? 0 : Math.max(0, first / sr - 0.05);
+            const end = first >= last ? buf.duration : Math.min(buf.duration, last / sr + 0.4);
+            return (buf._bounds = { start, dur: Math.max(0.1, end - start) });
+        }
+
+        async function playClip(url) {
+            const buf = await loadClip(url);            // rejects before any sound if the file is missing
+            const c = ensureAudio();
+            return new Promise(resolve => {
+                const src = c.createBufferSource();
+                src.buffer = buf;
+                const rate = brassOn ? 0.95 : 1;
+                src.playbackRate.value = rate;
+                const { start, dur } = voiceBounds(buf);
+                const fade = c.createGain();            // short fade so the trimmed end never clicks
+                const t0 = c.currentTime, len = dur / rate;
+                fade.gain.setValueAtTime(1, t0 + Math.max(0, len - 0.3));
+                fade.gain.linearRampToValueAtTime(0.0001, t0 + len);
+                const chain = buildVoiceChain(c);
+                const an = c.createAnalyser();
+                an.fftSize = 512;
+                analyserData = new Uint8Array(an.fftSize);
+                src.connect(fade); fade.connect(chain.input); chain.output.connect(an); an.connect(c.destination);
+                const finish = () => { isSpeaking = false; activeAnalyser = null; currentStop = null; jawGain = 2.6; resolve(); };
+                src.onended = finish;
+                currentStop = () => { src.onended = null; try { src.stop(); } catch (e) { /* already stopped */ } finish(); };
+                isSpeaking = true; activeAnalyser = an; jawGain = 1.5;
+                src.start(0, start, dur);
+            });
+        }
+
+        function setBrass(on) {
+            brassOn = on;
+            try { localStorage.setItem('brazenBrass', on ? 'on' : 'off'); } catch (e) { /* storage unavailable */ }
+            const sw = document.getElementById('brassToggle');
+            sw.setAttribute('aria-checked', String(on));
+            sw.classList.toggle('brass-on', on);
+        }
+
+        function playBlob(blob) {
+            return new Promise((resolve) => {
+                const audio = new Audio(URL.createObjectURL(blob));
+                currentAudio = audio;
+                try {
+                    ensureAudio();
+                    const src = audioCtx.createMediaElementSource(audio);
+                    const an = audioCtx.createAnalyser();
+                    an.fftSize = 512;
+                    analyserData = new Uint8Array(an.fftSize);
+                    const chain = buildVoiceChain(audioCtx);
+                    src.connect(chain.input);
+                    chain.output.connect(an);
+                    an.connect(audioCtx.destination);
+                    audio.onplay = () => { isSpeaking = true; activeAnalyser = an; };
+                } catch (e) {
+                    audio.onplay = () => { isSpeaking = true; activeAnalyser = null; };
+                }
+                const done = () => { isSpeaking = false; activeAnalyser = null; currentAudio = null; resolve(); };
+                audio.onended = done;
+                audio.onerror = done;
+                audio.play().catch(done);
+            });
+        }
+
+        async function downloadAudio(override) {
+            const text = (typeof override === 'string' && override ? override : document.getElementById('ttsTextInput').value).trim();
+            if (!text) {
+                toast("Inscribe a message first, then the Head can render it.");
+                return;
+            }
+            const clipUrl = FORTUNE_AUDIO.get(text);
+            if (clipUrl) {
+                try {
+                    const r = await fetch(clipUrl);
+                    if (!r.ok) throw new Error('HTTP ' + r.status);
+                    const a = document.createElement('a');
+                    a.href = URL.createObjectURL(await r.blob());
+                    a.download = clipUrl.split('/').pop();
+                    document.body.appendChild(a); a.click(); a.remove();
+                    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+                    return;
+                } catch (err) { console.warn('Recording not downloadable, trying Gemini:', err); }
+            }
+            const apiKey = document.getElementById('geminiApiKey').value.trim();
+            if (!apiKey) {
+                openConfig();
+                toast("Browser voices cannot be saved to a file. Add a Gemini API key to render downloadable audio.");
+                return;
+            }
+            const btn = document.getElementById(override ? 'saveFortuneBtn' : 'downloadBtn');
+            const original = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fa-solid fa-gear fa-spin"></i> Casting audio...`;
+            try {
+                const blob = await getGeminiAudio(text, apiKey);
+                const slug = text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').split('-').slice(0, 5).join('-') || 'oracle';
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = `brazen-head-${slug}.wav`;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+            } catch (err) {
+                console.warn("Audio render failed:", err);
+                toast(`Could not render audio (${err.message}).`);
+            }
+            btn.disabled = false;
+            btn.innerHTML = original;
+        }
+
+        function base64ToArrayBuffer(base64) {
+            const binaryString = atob(base64);
+            const bytes = new Uint8Array(binaryString.length);
+            for (let i = 0; i < binaryString.length; i++) bytes[i] = binaryString.charCodeAt(i);
+            return bytes.buffer;
+        }
+
+        function pcmToWav(pcm16, sampleRate) {
+            const buffer = new ArrayBuffer(44 + pcm16.length * 2);
+            const view = new DataView(buffer);
+            writeString(view, 0, 'RIFF');
+            view.setUint32(4, 36 + pcm16.length * 2, true);
+            writeString(view, 8, 'WAVE');
+            writeString(view, 12, 'fmt ');
+            view.setUint32(16, 16, true);
+            view.setUint16(20, 1, true);
+            view.setUint16(22, 1, true);
+            view.setUint32(24, sampleRate, true);
+            view.setUint32(28, sampleRate * 2, true);
+            view.setUint16(32, 2, true);
+            view.setUint16(34, 16, true);
+            writeString(view, 36, 'data');
+            view.setUint32(40, pcm16.length * 2, true);
+            let offset = 44;
+            for (let i = 0; i < pcm16.length; i++, offset += 2) view.setInt16(offset, pcm16[i], true);
+            return new Blob([buffer], { type: 'audio/wav' });
+        }
+
+        function writeString(view, offset, string) {
+            for (let i = 0; i < string.length; i++) view.setUint8(offset + i, string.charCodeAt(i));
+        }
+
+        /* =========================================================================
+           4. FORTUNE ORACLE
+           A shuffled deck: every fortune is drawn once before any repeats, and the
+           deck survives page reloads, so the Head always has something fresh.
+           ========================================================================= */
+        // Each fortune is its text plus an optional recording in the audio/ folder.
+        // To add one: append { text: "...", audio: "fortune-13.mp3" } and drop that file into audio/.
+        // Leave audio out (or the file missing) and the Head speaks it with the browser voice instead.
+        const AUDIO_DIR = 'audio/';
+        const FORTUNES = [
+            { text: "Thou shalt not perish until thou hast sung mass at Jerusalem. Mark well, traveler, which Jerusalem is meant; there are more than one, and the Head is a poor liar.", audio: "fortune-01.mp3" },
+            { text: "I was schooled among the Saracens, who count the stars better than kings count coin. The stars say yea, but not before the third moon wanes.", audio: "fortune-02.mp3" },
+            { text: "Time is. Time was. Time is past. Seize thy hour, pilgrim, ere the brass grows cold.", audio: "fortune-03.mp3" },
+            { text: "Seven years was I forged and seven more I slept. Patience: that which thou seekest keeps its own long hours.", audio: "fortune-04.mp3" },
+            { text: "A wall of brass shall rise about thy house, yet it must be built of deeds and not of hope. Lay the first stone on the morrow.", audio: "fortune-05.mp3" },
+            { text: "The Knights of the Temple kept a head such as I, and kept their counsel also. Do likewise; a secret told is a coin spent.", audio: "fortune-06.mp3" },
+            { text: "The ichor rises in my vessel, the cams turn true, and the answer is yea. Yet beware the one who smiles and holds the key.", audio: "fortune-07.mp3" },
+            { text: "Mercury hangs low in the house of the Scales. Settle thy debts, forgive a rival, and the road shall open before thee.", audio: "fortune-08.mp3" },
+            { text: "Trust not the watchman who sleeps at his post. The hour of thy truth passes while he dreams, and brass, once broken, speaks no more.", audio: "fortune-09.mp3" },
+            { text: "A fountain sings in a garden thou hast not yet seen. Thither wilt thou go before the year is out, and be glad of it.", audio: "fortune-10.mp3" },
+            { text: "Not all that is spoken by a head of brass is true, nor all that is spoken by a head of flesh. Weigh both upon the balance of thine own heart.", audio: "fortune-11.mp3" },
+            { text: "The astrolabe turns and the rete aligns: what thou fearest is smaller than its shadow. Go forth.", audio: "fortune-12.mp3" },
+        ];
+        const MEDIEVAL_FALLBACK_FORTUNES = FORTUNES.map(f => f.text);
+        const FORTUNE_AUDIO = new Map(FORTUNES.filter(f => f.audio).map(f => [f.text, AUDIO_DIR + f.audio]));
+
+        const DECK_KEY = 'brazenHeadDeck';
+
+        function shuffle(arr) {
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        let deckState = null; // in-memory copy, used when storage is unavailable
+
+        function loadDeck() {
+            if (deckState) return deckState;
+            try {
+                const d = JSON.parse(localStorage.getItem(DECK_KEY));
+                if (d && Array.isArray(d.deck) && d.n === MEDIEVAL_FALLBACK_FORTUNES.length) return d;
+            } catch (e) { /* storage unavailable */ }
+            return { n: MEDIEVAL_FALLBACK_FORTUNES.length, deck: [], last: -1 };
+        }
+
+        function saveDeck(d) {
+            deckState = d;
+            try { localStorage.setItem(DECK_KEY, JSON.stringify(d)); } catch (e) { /* storage unavailable */ }
+        }
+
+        function getRandomFallbackFortune() {
+            const d = loadDeck();
+            if (!d.deck.length) {
+                d.deck = shuffle(Array.from({ length: d.n }, (_, i) => i));
+                if (d.deck.length > 1 && d.deck[d.deck.length - 1] === d.last) {
+                    [d.deck[0], d.deck[d.deck.length - 1]] = [d.deck[d.deck.length - 1], d.deck[0]];
+                }
+            }
+            const idx = d.deck.pop();
+            d.last = idx;
+            saveDeck(d);
+            return MEDIEVAL_FALLBACK_FORTUNES[idx];
+        }
+
+        const YEA_NAY = [
+            "Yea. The cams turn true.", "Yea. The stars consent.", "Yea. Brass remembers what flesh forgets.",
+            "Yea, but not before the third moon wanes.", "Yea. Go, and do not look back.", "Yea. The wheels are aligned in thy favour.",
+            "Nay. The stars withhold their favour.", "Nay. The ichor runs thin.", "Nay. Not while Saturn keeps the hour.",
+            "Nay. Ask again when the moon is dark.", "Nay. The gears grind against it.", "Nay. Time was, and time is past."
+        ];
+        let lastYeaNay = -1, lastFortune = "", lastQuestion = "";
+
+        function getYeaNay() {
+            let i;
+            do { i = Math.floor(Math.random() * YEA_NAY.length); } while (i === lastYeaNay);
+            lastYeaNay = i;
+            return YEA_NAY[i];
+        }
+
+        async function consultOracle(deferSpeech) {
+            if (!requireAwake()) return;
+            const question = document.getElementById('oracleQuestion').value.trim();
+            const yesNo = !!document.getElementById('yesNoMode')?.checked; // checkbox removed; query styles to be consolidated
+            const apiKey = document.getElementById('geminiApiKey').value.trim();
+            const oracleDisplay = document.getElementById('oracleDisplay');
+            const oracleLoading = document.getElementById('oracleLoading');
+
+            oracleLoading.classList.remove('hidden');
+            isThinking = true;
+            setAutomatonStatus("Pondering...", "text-amber-400 animate-pulse");
+
+            let fortuneText = "";
+            if (apiKey) {
+                try {
+                    fortuneText = await fetchGeminiOracle(question, apiKey, yesNo);
+                } catch (err) {
+                    console.warn("Gemini Text API error, using fallback fortune:", err);
+                    toast("The Gemini oracle was silent. The Head answers from its own deck.");
+                    fortuneText = yesNo ? getYeaNay() : getRandomFallbackFortune();
+                }
+            } else {
+                await new Promise(r => setTimeout(r, 1400));
+                fortuneText = yesNo ? getYeaNay() : getRandomFallbackFortune();
+            }
+
+            isThinking = false;
+            oracleDisplay.classList.remove('fortune-in');
+            void oracleDisplay.offsetWidth; // restart the fade-in
+            oracleDisplay.textContent = `"${fortuneText}"`;
+            oracleDisplay.classList.add('fortune-in');
+            oracleLoading.classList.add('hidden');
+
+            lastFortune = fortuneText;
+            lastQuestion = question;
+            ['againBtn', 'saveFortuneBtn', 'cardBtn'].forEach(id => { document.getElementById(id).disabled = false; });
+            document.getElementById('ttsTextInput').value = fortuneText;
+            const clip = FORTUNE_AUDIO.get(fortuneText);
+            if (clip) loadClip(clip).catch(() => { /* falls back to another voice when spoken */ });
+            if (deferSpeech) return fortuneText; // the lever speaks it once it has settled
+            chimeSound(330);
+            executeTTS();
+            return fortuneText;
+        }
+
+        function hearAgain() {
+            if (!lastFortune || !requireAwake()) return;
+            hideFortuneBox();
+            document.getElementById('ttsTextInput').value = lastFortune;
+            pendingFortune = lastFortune;
+            executeTTS();
+        }
+
+        /* ---- Shareable fortune card (PNG) ---- */
+        function wrapText(ctx, text, maxW) {
+            const words = text.split(/\s+/), lines = [];
+            let line = '';
+            words.forEach(w => {
+                const test = line ? line + ' ' + w : w;
+                if (ctx.measureText(test).width > maxW && line) { lines.push(line); line = w; } else line = test;
+            });
+            if (line) lines.push(line);
+            return lines;
+        }
+
+        async function shareFortuneCard() {
+            if (!lastFortune) return;
+            try { await Promise.all([document.fonts.load("700 64px 'Cinzel Decorative'"), document.fonts.load("italic 44px 'MedievalSharp'")]); } catch (e) { /* fonts optional */ }
+
+            const W = 1080, H = 1350, c = document.createElement('canvas');
+            c.width = W; c.height = H;
+            const ctx = c.getContext('2d');
+
+            const bg = ctx.createRadialGradient(W / 2, H * 0.4, 100, W / 2, H * 0.4, H * 0.8);
+            bg.addColorStop(0, '#2a1d0e'); bg.addColorStop(1, '#050508');
+            ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+
+            ctx.strokeStyle = '#8b6b23'; ctx.lineWidth = 6; ctx.strokeRect(30, 30, W - 60, H - 60);
+            ctx.strokeStyle = 'rgba(212,175,55,0.5)'; ctx.lineWidth = 2; ctx.strokeRect(50, 50, W - 100, H - 100);
+
+            ctx.textAlign = 'center';
+            ctx.fillStyle = '#e0b84a';
+            ctx.shadowColor = 'rgba(212,175,55,0.5)'; ctx.shadowBlur = 18;
+            ctx.font = "700 64px 'Cinzel Decorative', serif";
+            ctx.fillText('CAPUT AERIUM', W / 2, 150);
+            ctx.shadowBlur = 0;
+            ctx.fillStyle = '#a07a2c';
+            ctx.font = "30px 'UnifrakturMaguntia', serif";
+            ctx.fillText('The Brazen Head Speaks', W / 2, 200);
+
+            // Snapshot of the head, rendered fresh so the canvas is readable
+            // Rendered at a fixed size and aspect, so the card looks the same on any screen
+            const dw = 900, dh = 620;
+            var textTop = 230 + dh + 40;
+            const container = document.getElementById('canvasContainer');
+            const prevRatio = renderer.getPixelRatio(), prevAspect = camera.aspect;
+            try {
+                renderer.setPixelRatio(1);
+                renderer.setSize(dw, dh, false);
+                camera.aspect = dw / dh;
+                camera.updateProjectionMatrix();
+                renderer.render(scene, camera);
+                ctx.drawImage(renderer.domElement, (W - dw) / 2, 230, dw, dh);
+            } catch (e) { /* card still carries the text without the snapshot */ }
+            renderer.setPixelRatio(prevRatio);
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            camera.aspect = prevAspect;
+            camera.updateProjectionMatrix();
+
+            ctx.fillStyle = '#8f7a4a';
+            ctx.font = "italic 30px 'MedievalSharp', serif";
+            if (lastQuestion) {
+                wrapText(ctx, `"${lastQuestion}"`, 800).slice(0, 2).forEach((l, i) => ctx.fillText(l, W / 2, textTop + i * 40));
+                textTop += 80;
+            }
+
+            // Fit the fortune to the remaining space
+            let size = 44, lines;
+            const maxH = H - 150 - textTop - 60;
+            do {
+                ctx.font = `italic ${size}px 'MedievalSharp', serif`;
+                lines = wrapText(ctx, lastFortune, 840);
+                size -= 2;
+            } while (lines.length * (size + 22) > maxH && size > 24);
+            ctx.fillStyle = '#f3dca0';
+            const lh = size + 22;
+            lines.forEach((l, i) => ctx.fillText(l, W / 2, textTop + 30 + i * lh));
+
+            ctx.fillStyle = '#6e5420';
+            ctx.font = "26px 'UnifrakturMaguntia', serif";
+            ctx.fillText(document.getElementById('skyLine').textContent, W / 2, H - 105);
+            ctx.font = "22px 'Cinzel Decorative', serif";
+            ctx.fillText('EX ARTE SARACENORUM', W / 2, H - 70);
+
+            c.toBlob(async blob => {
+                if (!blob) { toast("The card would not take its ink."); return; }
+                showCardPreview(blob);
+            }, 'image/png');
+        }
+
+        // Preview with explicit Download / Share buttons, so behaviour is identical in every browser
+        function showCardPreview(blob) {
+            const old = document.getElementById('cardModal');
+            if (old) old.remove();
+            const url = URL.createObjectURL(blob);
+            const file = new File([blob], 'brazen-head-fortune.png', { type: 'image/png' });
+            const canShare = !!(navigator.canShare && navigator.canShare({ files: [file] }));
+
+            const m = document.createElement('div');
+            m.id = 'cardModal';
+            m.className = 'fixed inset-0 z-[60] bg-black/85 flex flex-col items-center justify-center gap-3 p-4';
+            m.innerHTML = `
+                <img src="${url}" alt="Your fortune card" class="max-h-[78vh] max-w-full rounded border-2 border-amber-700 shadow-2xl">
+                <div class="flex flex-wrap justify-center gap-2 font-cinzel text-xs font-bold tracking-wider">
+                    <a href="${url}" download="brazen-head-fortune.png" class="px-4 py-2 rounded border border-amber-500/70 bg-amber-900/70 text-amber-100 hover:bg-amber-800"><i class="fa-solid fa-download mr-1.5"></i>Download PNG</a>
+                    ${canShare ? '<button id="cardShare" class="px-4 py-2 rounded border border-amber-700/70 bg-slate-950 text-amber-300 hover:bg-amber-950/50"><i class="fa-solid fa-share-nodes mr-1.5"></i>Share</button>' : ''}
+                    <button id="cardClose" class="px-4 py-2 rounded border border-amber-800/70 bg-slate-950 text-amber-400 hover:bg-amber-950/50">Close</button>
+                </div>
+                <p class="text-[11px] text-amber-600">You can also right-click (or long-press) the card to save it.</p>`;
+            document.body.appendChild(m);
+
+            const close = () => { m.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000); };
+            m.querySelector('#cardClose').onclick = close;
+            m.addEventListener('click', e => { if (e.target === m) close(); });
+            const share = m.querySelector('#cardShare');
+            if (share) share.onclick = async () => {
+                try { await navigator.share({ files: [file], title: 'The Brazen Head Speaks' }); }
+                catch (e) { /* cancelled */ }
+            };
+        }
+
+        async function fetchGeminiOracle(userQuery, apiKey, yesNo) {
+            const systemInstruction = (yesNo ? `Answer ONLY "Yea." or "Nay." followed by at most one short, solemn clause of seven words or fewer. ` : '') + `You are the Brazen Head, the talking automaton of brass said to have been wrought by Gerbert of Aurillac, Pope Sylvester II, who learned the astral sciences from the Saracens of Spain, and later guarded in legend by the Templars and Friar Roger Bacon.
+Answer the traveler's query as a cryptic, solemn fortune-telling automaton of the Middle Ages. Keep it to 2-3 poetic sentences. Use the imagery of astrolabes, brass cams and gears, alchemical ichor, planets, and time. If the query is a yes/no question, begin with "Yea" or "Nay" in the manner of the legend. If the query is empty, speak an unprompted prophecy. Never mention being an AI.`;
+
+            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
+                body: JSON.stringify({
+                    contents: [{ parts: [{ text: userQuery || "(The traveler knocks thrice and says nothing.)" }] }],
+                    systemInstruction: { parts: [{ text: systemInstruction }] }
+                })
+            });
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+            const data = await response.json();
+            return data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || getRandomFallbackFortune();
+        }
+
+
+        /* =========================================================================
+           LEVER: pull (drag or tap) -> knob slides right -> slow return while the
+           Head ponders -> chime and speech only once the knob is home.
+           ========================================================================= */
+        const lever = { x: 0, busy: false, down: null, lastTickX: 0, tid: 0 };
+        const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        function leverTravel() {
+            const track = document.getElementById('oracleBtn');
+            return Math.max(0, track.clientWidth - 52 - 8 - 4);   // knob 52px, 4px inset each side, border
+        }
+
+        function setKnob(x) {
+            lever.x = x;
+            const k = document.getElementById('leverKnob');
+            k.style.transform = `translateX(${x}px) rotate(${x * 1.6}deg)`;
+            if (Math.abs(x - lever.lastTickX) > 22) {      // ratchet clicks along the rail
+                lever.lastTickX = x;
+                try { noiseBurst(ensureAudio(), audioCtx.currentTime, 3200, 8, 0.07, 0.012); } catch (e) { /* audio unavailable */ }
+            }
+        }
+
+        function tweenKnob(to, ms, easing) {
+            const from = lever.x, id = ++lever.tid;
+            return new Promise(resolve => {
+                if (ms <= 0) { setKnob(to); resolve(); return; }
+                const t0 = performance.now();
+                (function step(now) {
+                    if (id !== lever.tid) { resolve(); return; }      // a newer movement took over
+                    const p = Math.min(1, (now - t0) / ms);
+                    setKnob(from + (to - from) * easing(p));
+                    p < 1 ? requestAnimationFrame(step) : resolve();
+                })(t0);
+            });
+        }
+
+        const easeOutCubic = p => 1 - Math.pow(1 - p, 3);
+        const easeInOutSine = p => -(Math.cos(Math.PI * p) - 1) / 2;
+        const wait = ms => new Promise(r => setTimeout(r, ms));
+        const buzz = pattern => { try { navigator.vibrate && navigator.vibrate(pattern); } catch (e) { /* unsupported */ } };
+
+        function clunkSound() {
+            try {
+                const c = ensureAudio(), t = c.currentTime;
+                const o = c.createOscillator(), g = c.createGain();
+                o.type = 'sine';
+                o.frequency.setValueAtTime(120, t);
+                o.frequency.exponentialRampToValueAtTime(48, t + 0.18);
+                g.gain.setValueAtTime(1, t);
+                g.gain.exponentialRampToValueAtTime(0.001, t + 0.3);
+                o.connect(g); g.connect(fxGain);
+                o.start(t); o.stop(t + 0.32);
+                noiseBurst(c, t, 900, 1, 0.6, 0.08);
+            } catch (e) { /* audio unavailable */ }
+        }
+
+        async function leverRattle() {                      // the Head sleeps: the lever jams
+            lever.busy = true;
+            clunkSound();
+            buzz([20, 40, 20]);
+            for (const x of [16, 4, 10, 0]) await tweenKnob(x, 70, easeOutCubic);
+            requireAwake();
+            lever.busy = false;
+        }
+
+        async function leverPull(startedFromDrag) {
+            if (lever.busy) return;
+            if (!awake) { await leverRattle(); return; }
+            lever.busy = true;
+            hideFortuneBox();                              // a new pull clears the previous fortune
+            const track = document.getElementById('oracleBtn');
+            track.setAttribute('aria-disabled', 'true');
+            let text = null;
+            try {
+                try { ensureAudio(); } catch (e) { /* audio unavailable */ }
+                await tweenKnob(leverTravel(), startedFromDrag ? 120 : (reduceMotion ? 0 : 750), easeOutCubic);
+                clunkSound();
+                buzz(25);
+                await wait(reduceMotion ? 0 : 180);
+
+                // the slow return is the Head's thinking time; the fortune is prepared meanwhile
+                const fortune = consultOracle(true).catch(err => { console.warn(err); return null; });
+                await tweenKnob(0, reduceMotion ? 350 : 2000, easeInOutSine);
+                clunkSound();
+                text = await fortune;                          // wait on the oracle if it is slower than the lever
+            } finally {
+                track.removeAttribute('aria-disabled');
+                lever.busy = false;
+                if (lever.x > 1) tweenKnob(0, 500, easeOutCubic);   // whatever happened, the knob ends at home
+            }
+            if (text) { playSteam('release', { gain: 0.28, offset: 2.1, dur: 1.5 }); chimeSound(330); pendingFortune = text; executeTTS(); }
+        }
+
+        (function initLever() {
+            const track = document.getElementById('oracleBtn');
+            const knob = document.getElementById('leverKnob');
+
+            track.addEventListener('pointerdown', e => {
+                if (lever.busy) return;
+                lever.tid++;                                    // stop any spring-back in progress
+                lever.down = { x: e.clientX, startX: lever.x, onKnob: knob.contains(e.target), moved: 0 };
+                if (lever.down.onKnob) { try { knob.setPointerCapture(e.pointerId); } catch (err) { /* ignore */ } }
+            });
+            track.addEventListener('pointermove', e => {
+                const d = lever.down;
+                if (!d || !d.onKnob || lever.busy) return;
+                d.moved = Math.max(d.moved, Math.abs(e.clientX - d.x));
+                if (d.moved > 6) setKnob(Math.max(0, Math.min(leverTravel(), d.startX + e.clientX - d.x)));
+            });
+
+            // However a drag ends (release, cancel, lost capture, release outside the page), finish it exactly once
+            const finish = () => {
+                const d = lever.down;
+                if (!d) return;
+                lever.down = null;
+                if (lever.busy) return;
+                if (d.moved <= 6) { leverPull(false); return; }          // tap
+                if (lever.x >= leverTravel() * 0.7) leverPull(true);     // pulled far enough
+                else tweenKnob(0, 350, easeOutCubic);                    // let go early: springs back
+            };
+            track.addEventListener('pointerup', finish);
+            track.addEventListener('pointercancel', finish);
+            knob.addEventListener('lostpointercapture', finish);
+            window.addEventListener('pointerup', finish);
+            window.addEventListener('blur', finish);
+
+            track.addEventListener('keydown', e => {
+                if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); leverPull(false); }
+            });
+            window.addEventListener('resize', () => { if (!lever.busy && !lever.down) setKnob(0); });
+
+            // Safety net: if the knob is ever left away from home while idle, it slides back
+            setInterval(() => {
+                if (!lever.busy && !lever.down && lever.x > 1) tweenKnob(0, 600, easeInOutSine);
+            }, 500);
+        })();
+
+
+        /* =========================================================================
+           STEAM SOUND: two embedded recordings (trimmed AAC) plus a synthesised hiss bed.
+           - release: the Head waking (and a softer vent as an answer arrives)
+           - puff:    short vents while it ponders and, faintly, while it speaks
+           - bed:     filtered-noise hiss that swells while thinking, whispers under speech
+           Everything routes through fxGain, so the sound button mutes it.
+           ========================================================================= */
+        const STEAM_B64 = {
+            release: "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AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA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",
+            puff: "AAAAHGZ0eXBNNEEgAAAAAE00QSBtcDQyaXNvbQAAA/5tb292AAAAbG12aGQAAAAA5wFOZOcBTmQAAKxEAAC4AAABAAABAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAACkHRyYWsAAABcdGtoZAAAAAfnAU5k5wFOZAAAAAEAAAAAAAC4AAAAAAAAAAAAAAAAAAEAAAAAAQAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAixtZGlhAAAAIG1kaGQAAAAA5wFOZOcBTmQAAKxEAAC4AAAAAAAAAAAiaGRscgAAAAAAAAAAc291bgAAAAAAAAAAAAAAAAAAAAAB4m1pbmYAAAAQc21oZAAAAAAAAAAAAAAAJGRpbmYAAAAcZHJlZgAAAAAAAAABAAAADHVybCAAAAABAAABpnN0YmwAAAB2c3RzZAAAAAAAAAABAAAAZm1wNGEAAAAAAAAAAQAAAAAAAAAAAAIAEAAAAACsRAAAAAAAM2VzZHMAAAAAA4CAgCIAAAAEgICAFEAUABgAAABwgAAAu4AFgICAAhIIBoCAgAECAAAAD3NidGQAAAAASTE2AAAAGHN0dHMAAAAAAAAAAQAAAC4AAAQAAAAAKHN0c2MAAAAAAAAAAgAAAAEAAAAWAAAAAQAAAAMAAAACAAAAAQAAAMxzdHN6AAAAAAAAAAAAAAAuAAAABAAAAAQAAAAeAAABfgAAAUEAAADOAAAA2wAAAI4AAACFAAAAjgAAAIcAAACOAAAAhwAAAIEAAACDAAAAgwAAAIMAAACJAAAAjAAAAIsAAACBAAAAhgAAAIsAAACHAAAAggAAAIEAAACEAAAAiAAAAH8AAAB3AAAAewAAAIAAAAB+AAAAjQAAAHsAAACKAAAAiAAAAH8AAACCAAAAhAAAAHkAAACAAAAAiwAAAIMAAAAZAAAABAAAABxzdGNvAAAAAAAAAAMAABAAAAAcfAAAJ7IAAAD6dWR0YQAAAPJtZXRhAAAAAAAAACJoZGxyAAAAAAAAAABtZGlyYXBwbAAAAAAAAAAAAAAAAADEaWxzdAAAALwtLS0tAAAAHG1lYW4AAAAAY29tLmFwcGxlLmlUdW5lcwAAABRuYW1lAAAAAGlUdW5TTVBCAAAAhGRhdGEAAAABAAAAACAwMDAwMDAwMCAwMDAwMDg0MCAwMDAwMDM3QyAwMDAwMDAwMDAwMDBBQzQ0IDAwMDAwMDAwIDAwMDAwMDAwIDAwMDAwMDAwIDAwMDAwMDAwIDAwMDAwMDAwIDAwMDAwMDAwIDAwMDAwMDAwIDAwMDAwMDAwAAAL3mZyZWUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA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"
+        };
+        const steam = { ready: false, buffers: {}, bedGain: null, filt: null, nextPuff: 0 };
+
+        function steamInit() {
+            if (steam.ready) return;
+            try {
+                const c = ensureAudio();
+                steam.ready = true;
+                Object.keys(STEAM_B64).forEach(k => {
+                    const bin = atob(STEAM_B64[k]), bytes = new Uint8Array(bin.length);
+                    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+                    c.decodeAudioData(bytes.buffer, buf => { steam.buffers[k] = buf; }, () => { /* sample unavailable: synth bed still plays */ });
+                });
+                const buf = c.createBuffer(1, c.sampleRate * 3, c.sampleRate);
+                const d = buf.getChannelData(0);
+                for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+                const src = c.createBufferSource();
+                src.buffer = buf; src.loop = true;
+                const hp = c.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 1800;
+                steam.filt = c.createBiquadFilter(); steam.filt.type = 'bandpass'; steam.filt.frequency.value = 4000; steam.filt.Q.value = 0.6;
+                steam.bedGain = c.createGain(); steam.bedGain.gain.value = 0;
+                src.connect(hp); hp.connect(steam.filt); steam.filt.connect(steam.bedGain); steam.bedGain.connect(fxGain);
+                src.start();
+                setInterval(steamTick, 150);
+            } catch (e) { /* audio unavailable */ }
+        }
+
+        function playSteam(name, o) {
+            const b = steam.buffers[name];
+            if (!b || !audioCtx || !fxGain) return;
+            o = o || {};
+            const gain = o.gain || 0.3, rate = o.rate || 1, offset = o.offset || 0;
+            const dur = Math.min(o.dur || b.duration - offset, b.duration - offset);
+            const c = audioCtx, t = c.currentTime, len = dur / rate;
+            const s = c.createBufferSource(), g = c.createGain();
+            s.buffer = b; s.playbackRate.value = rate;
+            g.gain.setValueAtTime(0.0001, t);
+            g.gain.linearRampToValueAtTime(gain, t + 0.04);
+            g.gain.setValueAtTime(gain, t + Math.max(0.05, len - 0.25));
+            g.gain.linearRampToValueAtTime(0.0001, t + len);
+            s.connect(g); g.connect(fxGain);
+            s.start(t, offset, dur);
+        }
+
+        function steamTick() {
+            if (!audioCtx || !steam.bedGain) return;
+            const t = audioCtx.currentTime;
+            const target = !awake ? 0 : isThinking ? 0.07 : isSpeaking ? 0.016 : 0;
+            steam.bedGain.gain.setTargetAtTime(target, t, 0.3);
+            steam.filt.frequency.setTargetAtTime(3000 + Math.random() * 2500, t, 0.2);
+            const now = performance.now();
+            if (awake && (isThinking || isSpeaking) && now > steam.nextPuff) {
+                playSteam('puff', { gain: isThinking ? 0.22 : 0.07, rate: 0.88 + Math.random() * 0.3 });
+                steam.nextPuff = now + (isThinking ? 500 + Math.random() * 500 : 1500 + Math.random() * 1500);
+            }
+        }
+
+        (function initFortuneBox() {
+            const box = document.getElementById('fortuneBox');
+            box.addEventListener('click', dismissFortune);
+            box.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); dismissFortune(); } });
+        })();
+
+        window.onload = function () {
+            init3D();
+            skyLine();
+            setBrass(brassOn);
+            if ('speechSynthesis' in window) window.speechSynthesis.getVoices();
+            document.getElementById('oracleQuestion').addEventListener('keydown', e => {
+                if (e.key === 'Enter') { e.preventDefault(); e.target.blur(); leverPull(); }
+            });
+        };
+    </script>
+</body>
+</html>
