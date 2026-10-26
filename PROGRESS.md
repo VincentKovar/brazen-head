@@ -22,6 +22,7 @@ Last updated: 2026-10-26.
 - Steam from crown, shoulders and mouth. Steam levels confirmed balanced by the user.
 - Voice & Automaton controls (message box, Animate & Speak, Download Audio, Silence) now live inside "Gemini Key & Voice Settings". The message box defaults to "Time is. Time was. Time is past."
 - Share Card: fixed-size card preview with Download PNG.
+- Save Audio follows the Brass Voice switch. After a performance it saves the whole thing as a stereo .wav (voice, bell, ticks, steam, lever clunks), recorded live with MediaRecorder. If the switch has changed since, or there was no performance, it saves the voice alone: rendered offline through the Brass chain when the switch is on, or the original file/audio when off. Browser voices cannot be saved.
 
 ## Open items
 1. Choose the best recorded voice for the main fortunes; record the other 10. Decide whether to use the compact `.m4a` copies (then change the `audio` names in `FORTUNES`).
