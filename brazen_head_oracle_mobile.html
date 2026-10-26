@@ -332,7 +332,7 @@
         <div class="flex items-center gap-2 text-[11px]">
             <span class="font-cinzel text-amber-600" id="brassLabel">Brass Voice</span>
             <button id="brassToggle" type="button" role="switch" aria-checked="true" aria-labelledby="brassLabel"
-                title="Gives recorded, Gemini and ElevenLabs voices a bronze, resonant timbre (the browser's own voice cannot be changed)"
+                title="Gives recorded, Gemini and ElevenLabs voices a deep, booming bronze timbre (the browser's own voice cannot be changed)"
                 onclick="setBrass(!brassOn)" class="brass-switch brass-on"><span class="brass-knob"></span></button>
         </div>
     </footer>
@@ -1436,33 +1436,51 @@
 
         function chamberIR(c) {
             if (reverbIR && reverbIR.sampleRate === c.sampleRate) return reverbIR;
-            const len = Math.floor(c.sampleRate * 1.7);
+            const len = Math.floor(c.sampleRate * 2.1);
             reverbIR = c.createBuffer(2, len, c.sampleRate);
             for (let ch = 0; ch < 2; ch++) {
                 const d = reverbIR.getChannelData(ch);
-                for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2.6);
+                let lp = 0;
+                for (let i = 0; i < len; i++) {
+                    lp += ((Math.random() * 2 - 1) - lp) * 0.22;           // low-passed noise: a dark, booming hall
+                    d[i] = lp * Math.pow(1 - i / len, 2.1) * 2.2;
+                }
             }
             return reverbIR;
         }
 
+        // Brass Voice: a low, booming, "great and powerful" timbre
         function buildVoiceChain(c) {
             const input = c.createGain();
             if (!brassOn) return { input, output: input };
-            const hp = c.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 110;
-            const low = c.createBiquadFilter(); low.type = 'lowshelf'; low.frequency.value = 220; low.gain.value = 4;
-            const p1 = c.createBiquadFilter(); p1.type = 'peaking'; p1.frequency.value = 950; p1.Q.value = 5; p1.gain.value = 5;
-            const p2 = c.createBiquadFilter(); p2.type = 'peaking'; p2.frequency.value = 2600; p2.Q.value = 7; p2.gain.value = 4;
+            const hp = c.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 65;
+            const sub = c.createBiquadFilter(); sub.type = 'peaking'; sub.frequency.value = 95; sub.Q.value = 1.1; sub.gain.value = 6;
+            const low = c.createBiquadFilter(); low.type = 'lowshelf'; low.frequency.value = 190; low.gain.value = 8;
+            const chest = c.createBiquadFilter(); chest.type = 'peaking'; chest.frequency.value = 380; chest.Q.value = 0.9; chest.gain.value = 4;   // weight that small phone speakers can still play
+            const p1 = c.createBiquadFilter(); p1.type = 'peaking'; p1.frequency.value = 850; p1.Q.value = 4; p1.gain.value = 4;
+            const p2 = c.createBiquadFilter(); p2.type = 'peaking'; p2.frequency.value = 2300; p2.Q.value = 6; p2.gain.value = 2;
+            const hi = c.createBiquadFilter(); hi.type = 'highshelf'; hi.frequency.value = 5200; hi.gain.value = -6;
+            const sat = c.createWaveShaper();                              // gentle saturation: warmth and weight
+            const curve = new Float32Array(1024);
+            for (let i = 0; i < curve.length; i++) { const x = (i / (curve.length - 1)) * 2 - 1; curve[i] = Math.tanh(x * 1.9) / Math.tanh(1.9); }
+            sat.curve = curve; sat.oversample = '2x';
             const comb = c.createDelay(0.05); comb.delayTime.value = 0.011;
-            const fb = c.createGain(); fb.gain.value = 0.42;
-            const combMix = c.createGain(); combMix.gain.value = 0.3;
+            const fb = c.createGain(); fb.gain.value = 0.36;
+            const combMix = c.createGain(); combMix.gain.value = 0.22;
+            const dbl = c.createDelay(0.1); dbl.delayTime.value = 0.03;        // a second, slightly late voice for size
+            const dblMix = c.createGain(); dblMix.gain.value = 0.42;
             const conv = c.createConvolver(); conv.buffer = chamberIR(c);
-            const wet = c.createGain(); wet.gain.value = 0.28;
-            const dry = c.createGain(); dry.gain.value = 0.9;
-            const out = c.createDynamicsCompressor();
-            input.connect(hp); hp.connect(low); low.connect(p1); p1.connect(p2);
-            p2.connect(dry); dry.connect(out);
-            p2.connect(comb); comb.connect(fb); fb.connect(comb); comb.connect(combMix); combMix.connect(out);
-            p2.connect(conv); conv.connect(wet); wet.connect(out);
+            const wet = c.createGain(); wet.gain.value = 0.29;
+            const dry = c.createGain(); dry.gain.value = 0.85;
+            const lim = c.createDynamicsCompressor();
+            lim.threshold.value = -20; lim.knee.value = 12; lim.ratio.value = 6; lim.attack.value = 0.004; lim.release.value = 0.22;
+            const out = c.createGain(); out.gain.value = 0.85;
+            input.connect(hp); hp.connect(sub); sub.connect(low); low.connect(chest); chest.connect(p1); p1.connect(p2); p2.connect(hi); hi.connect(sat);
+            sat.connect(dry); dry.connect(lim);
+            sat.connect(comb); comb.connect(fb); fb.connect(comb); comb.connect(combMix); combMix.connect(lim);
+            sat.connect(dbl); dbl.connect(dblMix); dblMix.connect(lim);
+            sat.connect(conv); conv.connect(wet); wet.connect(lim);
+            lim.connect(out);
             return { input, output: out };
         }
 
@@ -1488,7 +1506,7 @@
             return new Promise(resolve => {
                 const src = c.createBufferSource();
                 src.buffer = buf;
-                const rate = brassOn ? 0.95 : 1;
+                const rate = brassOn ? 0.88 : 1;               // lower pitch (and a touch slower)
                 src.playbackRate.value = rate;
                 const { start, dur } = voiceBounds(buf);
                 const fade = c.createGain();            // short fade so the trimmed end never clicks
@@ -1519,6 +1537,10 @@
         function playBlob(blob) {
             return new Promise((resolve) => {
                 const audio = new Audio(URL.createObjectURL(blob));
+                if (brassOn) {                         // same pitch drop as the recordings
+                    audio.preservesPitch = false; audio.webkitPreservesPitch = false; audio.mozPreservesPitch = false;
+                    audio.playbackRate = 0.9;
+                }
                 currentAudio = audio;
                 try {
                     ensureAudio();
