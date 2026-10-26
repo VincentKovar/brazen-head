@@ -1,6 +1,6 @@
 # Brazen Head: progress notes
 
-Last updated: 2026-10-23 (end of day).
+Last updated: 2026-10-26.
 
 ## Files
 - `brazen_head_oracle_v2.html`: desktop version (two tabs: Fortune Oracle, Voice & Automaton). Kept as is.
@@ -15,7 +15,8 @@ Last updated: 2026-10-23 (end of day).
 - The Head sleeps until knocked three times (click or tap the head). After a fortune, tapping the written fortune closes it and the Head sleeps again.
 - Lever: drag or tap; knob slides right, slow return while the Head "thinks"; the Head only speaks once the knob is home. Pulling while asleep jams the lever.
 - Fortunes: 12 entries in `FORTUNES` (text plus optional `audio` file). Shuffled deck, no repeats until all are used. Add more by hand.
-- Voice order: recording (if the fortune has a file) -> Gemini voice (if a key is entered) -> browser voice.
+- Voice order: recording (if the fortune has a file) -> chosen voice service (if a key is entered) -> browser voice.
+- Voice service switch in settings: Gemini (writes answers and speaks) or ElevenLabs (voice only; model `eleven_turbo_v2_5`, five premade voices plus a custom voice ID). ElevenLabs confirmed working by the user. With ElevenLabs selected, fortunes come from the deck.
 - Brass Voice switch (footer): bronze filtering, metallic ring and chamber echo on recordings and Gemini audio. Does not affect the browser voice.
 - Sound: ticking, bell, knocks, lever clunks, steam samples (embedded) plus synthesized hiss. Sound button mutes all effects.
 - Steam from crown, shoulders and mouth. Steam levels confirmed balanced by the user.
@@ -26,6 +27,6 @@ Last updated: 2026-10-23 (end of day).
 1. Choose the best recorded voice for the main fortunes; record the other 10. Decide whether to use the compact `.m4a` copies (then change the `audio` names in `FORTUNES`).
 2. Consolidate the query styles (Yea/Nay code is still in the script but switched off).
 3. Test on a real iPhone: audio unlock, voice, lever drag.
-4. Gemini voice, oracle text and audio download have never been tested with a real key.
+4. Gemini voice, oracle text and audio download have never been tested with a real key (ElevenLabs has been).
 5. Push `audio/` to GitHub next to the HTML (recordings load over the web, not from a local file).
 6. Possible polish: fortune box covers the face a bit; knock prompt overlaps the base.

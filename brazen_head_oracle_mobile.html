@@ -226,18 +226,25 @@
             <!-- SHARED SETTINGS (used by both tabs) -->
             <div class="border border-amber-900/60 rounded bg-slate-950/50 overflow-hidden text-xs">
                 <button onclick="toggleConfig()" class="w-full px-3 py-2 text-left flex justify-between items-center text-amber-400 font-cinzel hover:bg-amber-950/30">
-                    <span><i class="fa-solid fa-sliders text-amber-600 mr-1.5"></i> Gemini Key &amp; Voice Settings (Optional)</span>
+                    <span><i class="fa-solid fa-sliders text-amber-600 mr-1.5"></i> API Key &amp; Voice Settings (Optional)</span>
                     <i id="configChevron" class="fa-solid fa-chevron-down text-amber-600 transition-transform"></i>
                 </button>
                 <div id="configBody" class="hidden p-3 border-t border-amber-900/40 flex flex-col gap-3">
                     <p class="text-amber-500/80 leading-relaxed">
-                        One key serves both tabs: <strong>Gemini</strong> composes fresh answers for the Oracle and renders high-fidelity voices (and downloadable audio). Without it, the Head draws from its deck and speaks with the browser's voice. The key lives only in this page and is never saved.
+                        Optional. Without a key the Head draws from its deck of twelve and speaks with your browser's voice (recorded fortunes always play their recording first). <strong>Gemini</strong> can also write fresh answers; <strong>ElevenLabs</strong> only provides the voice. The key lives only in this page and is never saved.
                     </p>
                     <div>
-                        <label class="block text-amber-400 mb-1">Gemini API Key:</label>
+                        <label for="voiceProvider" class="block text-amber-400 mb-1">Voice service:</label>
+                        <select id="voiceProvider" onchange="onProviderChange()" class="w-full bg-slate-900 border border-amber-800/80 rounded px-2 py-1.5 text-amber-200 focus:outline-none text-xs">
+                            <option value="gemini">Gemini (writes answers and speaks)</option>
+                            <option value="eleven">ElevenLabs (voice only)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label id="keyLabel" for="geminiApiKey" class="block text-amber-400 mb-1">Gemini API Key:</label>
                         <input type="password" id="geminiApiKey" autocomplete="off" placeholder="Enter API Key (Optional)..." class="w-full bg-slate-900 border border-amber-800/80 rounded px-2.5 py-1.5 text-amber-100 focus:outline-none focus:border-amber-500 text-xs">
                     </div>
-                    <div class="grid grid-cols-2 gap-2">
+                    <div id="geminiOptions" class="grid grid-cols-2 gap-2">
                         <div>
                             <label class="block text-amber-400 mb-1">Voice Archetype:</label>
                             <select id="geminiVoice" class="w-full bg-slate-900 border border-amber-800/80 rounded px-2 py-1.5 text-amber-200 focus:outline-none text-xs">
@@ -258,6 +265,32 @@
                         </div>
                     </div>
 
+                    <div id="elevenOptions" class="hidden flex flex-col gap-2">
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label for="elevenVoice" class="block text-amber-400 mb-1">Voice:</label>
+                                <select id="elevenVoice" onchange="onElevenVoiceChange()" class="w-full bg-slate-900 border border-amber-800/80 rounded px-2 py-1.5 text-amber-200 focus:outline-none text-xs">
+                                    <option value="onwK4e9ZLuTAKqWW03F9">Daniel (British, deep)</option>
+                                    <option value="JBFqnCBsd6RMkjVDRZzb">George (British, warm)</option>
+                                    <option value="pNInz6obpgDQGcFmaJgB">Adam (deep)</option>
+                                    <option value="VR6AewLTigWG4xSOukaG">Arnold (crisp, strong)</option>
+                                    <option value="2EiwWnXFnvU5JabPnv8n">Clyde (gravelly veteran)</option>
+                                    <option value="custom">Custom voice ID...</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="elevenStability" class="block text-amber-400 mb-1">Delivery:</label>
+                                <select id="elevenStability" class="w-full bg-slate-900 border border-amber-800/80 rounded px-2 py-1.5 text-amber-200 focus:outline-none text-xs">
+                                    <option value="0.75">Steady</option>
+                                    <option value="0.5" selected>Natural</option>
+                                    <option value="0.3">Expressive</option>
+                                </select>
+                            </div>
+                        </div>
+                        <input type="text" id="elevenVoiceId" autocomplete="off" placeholder="Paste a voice ID from your ElevenLabs voices" class="hidden w-full bg-slate-900 border border-amber-800/80 rounded px-2.5 py-1.5 text-amber-100 focus:outline-none focus:border-amber-500 text-xs">
+                        <p class="text-[11px] text-amber-700 leading-snug">Voices are looked up by ID. The five listed are ElevenLabs' standard premade voices; if one is refused on your plan, paste another ID via "Custom".</p>
+                    </div>
+
                     <div class="border-t border-amber-900/50 pt-3 flex flex-col gap-3" id="voiceAutomaton">
                         <div>
                             <h3 class="font-cinzel text-sm text-amber-300 font-bold flex items-center gap-2"><i class="fa-solid fa-scroll text-amber-600"></i> Voice &amp; Automaton</h3>
@@ -275,14 +308,14 @@
                 <div class="grid grid-cols-3 gap-2">
                     <button id="downloadBtn" onclick="downloadAudio()" class="col-span-2 py-2.5 bg-slate-950/80 hover:bg-amber-950/50 text-amber-300 font-cinzel text-xs font-bold tracking-wider rounded border border-amber-700/70 transition flex items-center justify-center gap-2 disabled:opacity-60">
                         <i class="fa-solid fa-download"></i>
-                        Download Audio (.wav)
+                        Download Audio
                     </button>
                     <button onclick="stopSpeech()" class="py-2.5 bg-slate-950/80 hover:bg-red-950/40 text-amber-400 font-cinzel text-xs font-bold tracking-wider rounded border border-amber-800/70 transition flex items-center justify-center gap-2">
                         <i class="fa-solid fa-hand"></i>
                         Silence
                     </button>
                 </div>
-                <p class="text-[11px] text-amber-700 leading-snug">Saved audio uses the Gemini voice. A browser's built-in voice cannot be recorded to a file, so add a Gemini key in the settings to enable downloads.</p>
+                <p class="text-[11px] text-amber-700 leading-snug">Saved audio uses your chosen voice service. A browser's built-in voice cannot be recorded to a file, so add an API key above to enable downloads.</p>
             </div>
                     </div>
                 </div>
@@ -299,7 +332,7 @@
         <div class="flex items-center gap-2 text-[11px]">
             <span class="font-cinzel text-amber-600" id="brassLabel">Brass Voice</span>
             <button id="brassToggle" type="button" role="switch" aria-checked="true" aria-labelledby="brassLabel"
-                title="Gives recorded and Gemini voices a bronze, resonant timbre (the browser's own voice cannot be changed)"
+                title="Gives recorded, Gemini and ElevenLabs voices a bronze, resonant timbre (the browser's own voice cannot be changed)"
                 onclick="setBrass(!brassOn)" class="brass-switch brass-on"><span class="brass-knob"></span></button>
         </div>
     </footer>
@@ -1179,7 +1212,7 @@
             }
             if (!requireAwake()) return;
 
-            const apiKey = document.getElementById('geminiApiKey').value.trim();
+            const apiKey = voiceKey();
             const speakBtn = document.getElementById('speakBtn');
             const run = ++speechRun;
             const forFortune = !!pendingFortune;       // fortunes are written out after the Head has spoken
@@ -1200,13 +1233,13 @@
             if (played) { /* the recording has finished */ }
             else if (apiKey) {
                 try {
-                    const blob = await getGeminiAudio(textInput, apiKey);
+                    const blob = await getVoiceAudio(textInput, apiKey);
                     if (run !== speechRun) return;
                     await playBlob(blob);
                 } catch (err) {
-                    console.warn("Gemini TTS failed, reverting to local speech synth:", err);
+                    console.warn(`${providerName()} TTS failed, reverting to local speech synth:`, err);
                     if (run !== speechRun) return;
-                    toast(`Gemini voice failed (${err.message}). Using the local voice instead.`);
+                    toast(`${providerName()} voice failed (${err.message}). Using the browser voice instead.`);
                     await speakWithWebSpeech(textInput);
                 }
             } else {
@@ -1229,7 +1262,7 @@
         function speakWithWebSpeech(text) {
             return new Promise((resolve) => {
                 if (!('speechSynthesis' in window)) {
-                    toast("This browser has no speech synthesis. Add a Gemini key to hear the Head.");
+                    toast("This browser has no speech synthesis. Add an API key to hear the Head.");
                     resolve();
                     return;
                 }
@@ -1244,7 +1277,7 @@
                 // If the browser never begins speaking, say so instead of staying silent
                 const watchdog = setTimeout(() => {
                     if (started) return;
-                    toast("Your browser's voice did not start. Check the volume and silent switch, or add a Gemini key in the settings for a built-in voice.");
+                    toast("Your browser's voice did not start. Check the volume and silent switch, or add an API key in the settings for a built-in voice.");
                 }, 3500);
 
                 utterance.onstart = () => { started = true; clearTimeout(watchdog); isSpeaking = true; activeAnalyser = null; };
@@ -1254,7 +1287,7 @@
                     clearTimeout(watchdog);
                     isSpeaking = false;
                     if (e && e.error && e.error !== 'interrupted' && e.error !== 'canceled') {
-                        toast(`Browser voice error: ${e.error}. Add a Gemini key in the settings for a built-in voice.`);
+                        toast(`Browser voice error: ${e.error}. Add an API key in the settings for a built-in voice.`);
                     }
                     resolve();
                 };
@@ -1264,8 +1297,82 @@
         }
 
         function ttsKey(text) {
-            return [text, document.getElementById('geminiVoice').value, document.getElementById('ttsStylePrompt').value].join('|');
+            return provider() === 'eleven'
+                ? ['eleven', text, elevenVoiceId(), document.getElementById('elevenStability').value].join('|')
+                : ['gemini', text, document.getElementById('geminiVoice').value, document.getElementById('ttsStylePrompt').value].join('|');
         }
+
+        /* ---- Voice service: Gemini or ElevenLabs ---- */
+        const ELEVEN_MODEL = 'eleven_turbo_v2_5';   // half the credits of eleven_multilingual_v2
+        const providerKeys = { gemini: '', eleven: '' };   // each service remembers its own key while the page is open
+        let currentProvider = 'gemini';
+
+        function provider() { return document.getElementById('voiceProvider').value; }
+        function providerName() { return provider() === 'eleven' ? 'ElevenLabs' : 'Gemini'; }
+        function voiceKey() { return document.getElementById('geminiApiKey').value.trim(); }
+        function oracleKey() { return provider() === 'gemini' ? voiceKey() : ''; }    // only Gemini can write fortunes
+        function elevenVoiceId() {
+            const v = document.getElementById('elevenVoice').value;
+            return v === 'custom' ? document.getElementById('elevenVoiceId').value.trim() : v;
+        }
+
+        function applyProviderUI() {
+            const eleven = provider() === 'eleven';
+            document.getElementById('geminiOptions').classList.toggle('hidden', eleven);
+            document.getElementById('elevenOptions').classList.toggle('hidden', !eleven);
+            document.getElementById('keyLabel').textContent = eleven ? 'ElevenLabs API Key:' : 'Gemini API Key:';
+            document.getElementById('elevenVoiceId').classList.toggle('hidden', document.getElementById('elevenVoice').value !== 'custom');
+        }
+
+        function onProviderChange() {
+            const input = document.getElementById('geminiApiKey');
+            providerKeys[currentProvider] = input.value;
+            currentProvider = provider();
+            input.value = providerKeys[currentProvider];
+            applyProviderUI();
+            try { localStorage.setItem('brazenProvider', currentProvider); } catch (e) { /* storage unavailable */ }
+        }
+
+        function onElevenVoiceChange() {
+            applyProviderUI();
+            try { localStorage.setItem('brazenElevenVoice', document.getElementById('elevenVoice').value); } catch (e) { /* storage unavailable */ }
+        }
+
+        async function getElevenAudio(text, apiKey) {
+            const key = ttsKey(text);
+            if (lastAudio && lastAudio.key === key) return lastAudio.blob;
+            const voiceId = elevenVoiceId();
+            if (!voiceId) throw new Error('paste an ElevenLabs voice ID first');
+
+            const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${encodeURIComponent(voiceId)}?output_format=mp3_44100_64`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Accept': 'audio/mpeg', 'xi-api-key': apiKey },
+                body: JSON.stringify({
+                    text,
+                    model_id: ELEVEN_MODEL,
+                    voice_settings: { stability: parseFloat(document.getElementById('elevenStability').value), similarity_boost: 0.75 }
+                })
+            });
+            if (!response.ok) {
+                let detail = '';
+                try {
+                    const j = await response.json();
+                    detail = typeof j.detail === 'string' ? j.detail : (j.detail && (j.detail.message || j.detail.status)) || '';
+                } catch (e) { /* no JSON body */ }
+                const lead = response.status === 401 ? 'the key was rejected (401)'
+                    : response.status === 429 ? 'quota or rate limit reached (429)'
+                    : `HTTP ${response.status}`;
+                throw new Error(detail ? `${lead}: ${detail}` : lead);
+            }
+            const blob = new Blob([await response.blob()], { type: 'audio/mpeg' });
+            lastAudio = { key, blob };
+            return blob;
+        }
+
+        function getVoiceAudio(text, apiKey) {
+            return provider() === 'eleven' ? getElevenAudio(text, apiKey) : getGeminiAudio(text, apiKey);
+        }
+
 
         async function getGeminiAudio(text, apiKey) {
             const key = ttsKey(text);
@@ -1451,12 +1558,12 @@
                     document.body.appendChild(a); a.click(); a.remove();
                     setTimeout(() => URL.revokeObjectURL(a.href), 4000);
                     return;
-                } catch (err) { console.warn('Recording not downloadable, trying Gemini:', err); }
+                } catch (err) { console.warn('Recording not downloadable, trying the voice service:', err); }
             }
-            const apiKey = document.getElementById('geminiApiKey').value.trim();
+            const apiKey = voiceKey();
             if (!apiKey) {
                 openConfig();
-                toast("Browser voices cannot be saved to a file. Add a Gemini API key to render downloadable audio.");
+                toast("Browser voices cannot be saved to a file. Add an API key to render downloadable audio.");
                 return;
             }
             const btn = document.getElementById(override ? 'saveFortuneBtn' : 'downloadBtn');
@@ -1464,11 +1571,11 @@
             btn.disabled = true;
             btn.innerHTML = `<i class="fa-solid fa-gear fa-spin"></i> Casting audio...`;
             try {
-                const blob = await getGeminiAudio(text, apiKey);
+                const blob = await getVoiceAudio(text, apiKey);
                 const slug = text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').split('-').slice(0, 5).join('-') || 'oracle';
                 const a = document.createElement('a');
                 a.href = URL.createObjectURL(blob);
-                a.download = `brazen-head-${slug}.wav`;
+                a.download = `brazen-head-${slug}.${blob.type.includes('mpeg') ? 'mp3' : 'wav'}`;
                 document.body.appendChild(a);
                 a.click();
                 a.remove();
@@ -1598,7 +1705,7 @@
             if (!requireAwake()) return;
             const question = document.getElementById('oracleQuestion').value.trim();
             const yesNo = !!document.getElementById('yesNoMode')?.checked; // checkbox removed; query styles to be consolidated
-            const apiKey = document.getElementById('geminiApiKey').value.trim();
+            const apiKey = oracleKey();                // only Gemini can write new fortunes
             const oracleDisplay = document.getElementById('oracleDisplay');
             const oracleLoading = document.getElementById('oracleLoading');
 
@@ -1999,6 +2106,12 @@ Answer the traveler's query as a cryptic, solemn fortune-telling automaton of th
             init3D();
             skyLine();
             setBrass(brassOn);
+            try {
+                const sp = localStorage.getItem('brazenProvider'), sv = localStorage.getItem('brazenElevenVoice');
+                if (sp === 'eleven' || sp === 'gemini') { document.getElementById('voiceProvider').value = sp; currentProvider = sp; }
+                if (sv && [...document.getElementById('elevenVoice').options].some(o => o.value === sv)) document.getElementById('elevenVoice').value = sv;
+            } catch (e) { /* storage unavailable */ }
+            applyProviderUI();
             if ('speechSynthesis' in window) window.speechSynthesis.getVoices();
             document.getElementById('oracleQuestion').addEventListener('keydown', e => {
                 if (e.key === 'Enter') { e.preventDefault(); e.target.blur(); leverPull(); }
