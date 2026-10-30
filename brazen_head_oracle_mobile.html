@@ -1122,16 +1122,24 @@
         }
 
         let toastTimer = null;
-        function toast(msg) {
+        function hideToast() {
+            const el = document.getElementById('toast');
+            el.style.opacity = '0';
+            el.style.transform = 'translate(-50%, -8px)';
+            el.style.pointerEvents = 'none';
+        }
+
+        // Stays long enough to read (longer for longer messages); tap it to dismiss
+        function toast(msg, ms) {
             const el = document.getElementById('toast');
             el.textContent = msg;
             el.style.opacity = '1';
             el.style.transform = 'translate(-50%, 0)';
+            el.style.pointerEvents = 'auto';
+            el.style.cursor = 'pointer';
+            el.onclick = hideToast;
             clearTimeout(toastTimer);
-            toastTimer = setTimeout(() => {
-                el.style.opacity = '0';
-                el.style.transform = 'translate(-50%, -8px)';
-            }, 4200);
+            toastTimer = setTimeout(hideToast, ms || Math.max(4200, 2500 + msg.length * 55));
         }
 
         function skyLine() {
@@ -1229,7 +1237,10 @@
             const clipUrl = FORTUNE_AUDIO.get(textInput);
             if (clipUrl) {
                 try { await playClip(clipUrl); played = true; }
-                catch (err) { console.warn('Recording unavailable, using another voice:', err); }
+                catch (err) {
+                    console.warn('Recording unavailable, using another voice:', err);
+                    toast("Recording not loaded, so the Head is using another voice. Open the page from a web address (not a local file) with the audio folder beside it. Tap to dismiss.");
+                }
             }
             if (played) { /* the recording has finished */ }
             else if (apiKey) {
@@ -1437,7 +1448,7 @@
 
         function chamberIR(c) {
             if (reverbIR && reverbIR.sampleRate === c.sampleRate) return reverbIR;
-            const len = Math.floor(c.sampleRate * 2.1);
+            const len = Math.floor(c.sampleRate * 1.4);
             reverbIR = c.createBuffer(2, len, c.sampleRate);
             for (let ch = 0; ch < 2; ch++) {
                 const d = reverbIR.getChannelData(ch);
@@ -1455,8 +1466,8 @@
             const input = c.createGain();
             if (!brassOn) return { input, output: input };
             const hp = c.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 65;
-            const sub = c.createBiquadFilter(); sub.type = 'peaking'; sub.frequency.value = 95; sub.Q.value = 1.1; sub.gain.value = 6;
-            const low = c.createBiquadFilter(); low.type = 'lowshelf'; low.frequency.value = 190; low.gain.value = 8;
+            const sub = c.createBiquadFilter(); sub.type = 'peaking'; sub.frequency.value = 95; sub.Q.value = 1.1; sub.gain.value = 4.5;
+            const low = c.createBiquadFilter(); low.type = 'lowshelf'; low.frequency.value = 190; low.gain.value = 6.5;
             const chest = c.createBiquadFilter(); chest.type = 'peaking'; chest.frequency.value = 380; chest.Q.value = 0.9; chest.gain.value = 4;   // weight that small phone speakers can still play
             const p1 = c.createBiquadFilter(); p1.type = 'peaking'; p1.frequency.value = 850; p1.Q.value = 4; p1.gain.value = 4;
             const p2 = c.createBiquadFilter(); p2.type = 'peaking'; p2.frequency.value = 2300; p2.Q.value = 6; p2.gain.value = 2;
@@ -1469,9 +1480,9 @@
             const fb = c.createGain(); fb.gain.value = 0.36;
             const combMix = c.createGain(); combMix.gain.value = 0.22;
             const dbl = c.createDelay(0.1); dbl.delayTime.value = 0.03;        // a second, slightly late voice for size
-            const dblMix = c.createGain(); dblMix.gain.value = 0.42;
+            const dblMix = c.createGain(); dblMix.gain.value = 0.33;
             const conv = c.createConvolver(); conv.buffer = chamberIR(c);
-            const wet = c.createGain(); wet.gain.value = 0.29;
+            const wet = c.createGain(); wet.gain.value = 0.19;
             const dry = c.createGain(); dry.gain.value = 0.85;
             const lim = c.createDynamicsCompressor();
             lim.threshold.value = -20; lim.knee.value = 12; lim.ratio.value = 6; lim.attack.value = 0.004; lim.release.value = 0.22;
@@ -1785,22 +1796,22 @@
            deck survives page reloads, so the Head always has something fresh.
            ========================================================================= */
         // Each fortune is its text plus an optional recording in the audio/ folder.
-        // To add one: append { text: "...", audio: "fortune-13.mp3" } and drop that file into audio/.
+        // To add one: append { text: "...", audio: "new/fortune-13.m4a" } and drop that file into audio/new/.
         // Leave audio out (or the file missing) and the Head speaks it with the browser voice instead.
         const AUDIO_DIR = 'audio/';
         const FORTUNES = [
-            { text: "Thou shalt not perish until thou hast sung mass at Jerusalem. Mark well, traveler, which Jerusalem is meant; there are more than one, and the Head is a poor liar.", audio: "fortune-01.mp3" },
-            { text: "I was schooled among the Saracens, who count the stars better than kings count coin. The stars say yea, but not before the third moon wanes.", audio: "fortune-02.mp3" },
-            { text: "Time is. Time was. Time is past. Seize thy hour, pilgrim, ere the brass grows cold.", audio: "fortune-03.mp3" },
-            { text: "Seven years was I forged and seven more I slept. Patience: that which thou seekest keeps its own long hours.", audio: "fortune-04.mp3" },
-            { text: "A wall of brass shall rise about thy house, yet it must be built of deeds and not of hope. Lay the first stone on the morrow.", audio: "fortune-05.mp3" },
-            { text: "The Knights of the Temple kept a head such as I, and kept their counsel also. Do likewise; a secret told is a coin spent.", audio: "fortune-06.mp3" },
-            { text: "The ichor rises in my vessel, the cams turn true, and the answer is yea. Yet beware the one who smiles and holds the key.", audio: "fortune-07.mp3" },
-            { text: "Mercury hangs low in the house of the Scales. Settle thy debts, forgive a rival, and the road shall open before thee.", audio: "fortune-08.mp3" },
-            { text: "Trust not the watchman who sleeps at his post. The hour of thy truth passes while he dreams, and brass, once broken, speaks no more.", audio: "fortune-09.mp3" },
-            { text: "A fountain sings in a garden thou hast not yet seen. Thither wilt thou go before the year is out, and be glad of it.", audio: "fortune-10.mp3" },
-            { text: "Not all that is spoken by a head of brass is true, nor all that is spoken by a head of flesh. Weigh both upon the balance of thine own heart.", audio: "fortune-11.mp3" },
-            { text: "The astrolabe turns and the rete aligns: what thou fearest is smaller than its shadow. Go forth.", audio: "fortune-12.mp3" },
+            { text: "Thou shalt not perish until thou hast sung mass at Jerusalem. Mark well, traveler, which Jerusalem is meant; there are more than one, and the Head is a poor liar.", audio: "new/fortune-01.m4a" },
+            { text: "I was schooled among the Saracens, who count the stars better than kings count coin. The stars say yea, but not before the third moon wanes.", audio: "new/fortune-02.m4a" },
+            { text: "Time is. Time was. Time is past. Seize thy hour, pilgrim, ere the brass grows cold.", audio: "new/fortune-03.m4a" },
+            { text: "Seven years was I forged and seven more I slept. Patience: that which thou seekest keeps its own long hours.", audio: "new/fortune-04.m4a" },
+            { text: "A wall of brass shall rise about thy house, yet it must be built of deeds and not of hope. Lay the first stone on the morrow.", audio: "new/fortune-05.m4a" },
+            { text: "The Knights of the Temple kept a head such as I, and kept their counsel also. Do likewise; a secret told is a coin spent.", audio: "new/fortune-06.m4a" },
+            { text: "The ichor rises in my vessel, the cams turn true, and the answer is yea. Yet beware the one who smiles and holds the key.", audio: "new/fortune-07.m4a" },
+            { text: "Mercury hangs low in the house of the Scales. Settle thy debts, forgive a rival, and the road shall open before thee.", audio: "new/fortune-08.m4a" },
+            { text: "Trust not the watchman who sleeps at his post. The hour of thy truth passes while he dreams, and brass, once broken, speaks no more.", audio: "new/fortune-09.m4a" },
+            { text: "A fountain sings in a garden thou hast not yet seen. Thither wilt thou go before the year is out, and be glad of it.", audio: "new/fortune-10.m4a" },
+            { text: "Not all that is spoken by a head of brass is true, nor all that is spoken by a head of flesh. Weigh both upon the balance of thine own heart.", audio: "new/fortune-11.m4a" },
+            { text: "The astrolabe turns and the rete aligns: what thou fearest is smaller than its shadow. Go forth.", audio: "new/fortune-12.m4a" },
         ];
         const MEDIEVAL_FALLBACK_FORTUNES = FORTUNES.map(f => f.text);
         const FORTUNE_AUDIO = new Map(FORTUNES.filter(f => f.audio).map(f => [f.text, AUDIO_DIR + f.audio]));
