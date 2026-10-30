@@ -174,4 +174,4 @@ Put the audio file in `audio/new/`. Leave `audio` out, and that fortune uses Ele
 
 ## License
 
-No license has been chosen yet, so all rights are reserved by the author for now. Add a `LICENSE` file before others reuse the code.
+Creative Commons-credit
