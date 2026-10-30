@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 340" role="img" aria-label="Caput Aerium: The Brazen Head">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="45%" r="75%">
+      <stop offset="0" stop-color="#2a1b0b"/>
+      <stop offset="0.55" stop-color="#120d08"/>
+      <stop offset="1" stop-color="#050508"/>
+    </radialGradient>
+    <linearGradient id="brass" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f7e3a0"/>
+      <stop offset="0.45" stop-color="#d4af37"/>
+      <stop offset="1" stop-color="#7a5a1c"/>
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-50%" width="140%" height="200%">
+      <feGaussianBlur stdDeviation="6" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <rect width="1200" height="340" fill="url(#bg)"/>
+
+  <!-- astrolabe rings -->
+  <g fill="none" stroke="#d4af37" stroke-opacity="0.22">
+    <circle cx="600" cy="170" r="150"/>
+    <circle cx="600" cy="170" r="122" stroke-dasharray="2 7"/>
+    <circle cx="600" cy="170" r="96"/>
+    <circle cx="600" cy="170" r="60" stroke-opacity="0.15"/>
+    <circle cx="640" cy="150" r="104" stroke-opacity="0.15"/>
+  </g>
+  <!-- eight-point star -->
+  <g fill="none" stroke="#d4af37" stroke-opacity="0.3">
+    <polygon points="600,24 646,124 746,170 646,216 600,316 554,216 454,170 554,124"/>
+    <polygon points="600,50 668,102 720,170 668,238 600,290 532,238 480,170 532,102" stroke-opacity="0.18"/>
+  </g>
+
+  <!-- side ornaments -->
+  <g fill="#d4af37" fill-opacity="0.5">
+    <circle cx="70" cy="170" r="5"/><circle cx="1130" cy="170" r="5"/>
+    <circle cx="110" cy="170" r="2.5"/><circle cx="1090" cy="170" r="2.5"/>
+  </g>
+  <g stroke="#d4af37" stroke-opacity="0.4">
+    <line x1="130" y1="170" x2="380" y2="170"/><line x1="820" y1="170" x2="1070" y2="170"/>
+  </g>
+
+  <!-- frame -->
+  <rect x="14" y="14" width="1172" height="312" rx="10" fill="none" stroke="#8b6b23" stroke-width="3"/>
+  <rect x="24" y="24" width="1152" height="292" rx="6" fill="none" stroke="#d4af37" stroke-opacity="0.35"/>
+
+  <!-- title -->
+  <g text-anchor="middle" font-family="Georgia, 'Times New Roman', serif">
+    <text x="600" y="168" font-size="78" font-weight="bold" letter-spacing="10" fill="url(#brass)" filter="url(#glow)">CAPUT AERIUM</text>
+    <text x="600" y="214" font-size="26" font-style="italic" letter-spacing="3" fill="#b8913a">The Brazen Head</text>
+    <text x="600" y="262" font-size="15" letter-spacing="5" fill="#8f7a4a">AN ORACLE OF BRASS, STEAM AND OLD LEGEND</text>
+  </g>
+</svg>
